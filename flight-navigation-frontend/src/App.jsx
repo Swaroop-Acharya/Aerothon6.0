@@ -1,19 +1,9 @@
-// src/App.js
-import React, { useState } from 'react';
-import FlightSearch from './components/FlightSearch';
-
-import './App.css';
+import FlightSearchBar from "./components/FlightSearchBar";
 
 const App = () => {
-  
-
-  return (
-    <div className="App">
-      <h1>Flight Navigation</h1>
-      
-      
-    </div>
-  );
+  return <div className="App">
+    <FlightSearchBar/>
+  </div>;
 };
 
 export default App;
