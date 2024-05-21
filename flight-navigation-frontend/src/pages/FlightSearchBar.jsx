@@ -110,7 +110,7 @@ export default function FlightSearchBar() {
   return (
     <div className="container mx-auto p-4">
       <div className="flex">
-        <div className="w-full md:w-1/2">
+        <div className="w-full ">
           <FlightForm
             fromAirport={fromAirport}
             setFromAirport={setFromAirport}

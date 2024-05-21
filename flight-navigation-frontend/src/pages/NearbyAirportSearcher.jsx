@@ -4,11 +4,30 @@ function NearbyAirportSearcher() {
   const [longitude, setLongitude] = useState("");
   const [latitude, setLatitude] = useState("");
   const [radius, setRadius] = useState("");
+  const [result, setResult] = useState(null);
 
-  const handleSearch = (e) => {
+  const handleSearch = async (e) => {
     e.preventDefault();
-    // Implement search functionality here
-    console.log(`Searching for airports near [${latitude}, ${longitude}] within ${radius} km radius.`);
+
+    try {
+      const response = await fetch("http://localhost:5000/api/get-nearest-airport", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          latitude,
+          longitude,
+          radius,
+          destinationIataCode: "BLR" // Example destination IATA code
+        })
+      });
+      const data = await response.json();
+      console.log(data)
+      // setResult(data);
+    } catch (error) {
+      console.error("Error fetching nearest airport:", error);
+    }
   };
 
   return (
@@ -61,6 +80,14 @@ function NearbyAirportSearcher() {
           </button>
         </div>
       </form>
+      {/* {result && (
+        <div className="mt-4">
+          <h3 className="text-lg font-bold">Nearest Airport</h3>
+          <p><strong>Name:</strong> {result.nearestAirport.name}</p>
+          <p><strong>IATA Code:</strong> {result.nearestAirport.iataCode}</p>
+          <p><strong>Distance:</strong> {result.minDistance.toFixed(2)} km</p>
+        </div>
+      )} */}
     </div>
   );
 }

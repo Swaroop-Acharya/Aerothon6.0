@@ -7,12 +7,12 @@ function FlightForm({
   setToAirport,
   flightType,
   setFlightType,
-  handleSubmit
+  handleSubmit,
 }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
+      className="bg-white w-full flex shadow-md  rounded px-8 pt-6 pb-8 mb-4"
     >
       <div className="mb-4">
         <label className="block text-gray-700 text-sm font-bold mb-2">
@@ -40,7 +40,7 @@ function FlightForm({
       </div>
       <div className="mb-4">
         <label className="block text-gray-700 text-sm font-bold mb-2">
-          Flight Type:
+          Operation:
         </label>
         <select
           value={flightType}
