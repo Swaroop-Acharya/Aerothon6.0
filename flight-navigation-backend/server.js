@@ -85,6 +85,21 @@ const extractFactors = (weatherData) => {
   };
 };
 
+// Function to check weather conditions
+const checkWeatherConditions = (weatherData) => {
+  const minVisibility = 1.0; // Minimum visibility in kilometers
+  const maxWindSpeed = 20.0; // Maximum wind speed in kilometers per hour
+
+  // Check if visibility and wind speed are within acceptable ranges
+  if (
+    weatherData.visibility.km >= minVisibility &&
+    weatherData.wind.speed <= maxWindSpeed
+  ) {
+    return true; // Weather conditions are suitable
+  }
+  return false; // Weather conditions are not suitable
+};
+
 app.post("/api/get-nearest-airport", async (req, res) => {
   const { latitude, longitude, radius, destinationIataCode } = req.body;
 
@@ -207,7 +222,7 @@ app.post("/api/get-nearest-airport", async (req, res) => {
     );
 
     // Prepare the sorted list of all airports
-    console.log(validAirports)
+   
     const sortedAirports = validAirports
       .filter((airport) => airport.distance !== null && airport.distance > 0)
       .map((airport) => ({
@@ -217,7 +232,25 @@ app.post("/api/get-nearest-airport", async (req, res) => {
         distance: airport.distance,
       }))
       .sort((a, b) => a.distance - b.distance);
-      console.log(sortedAirports)
+    
+      let nearestAirport1 = null;
+
+    // Iterate through airports to find nearest airport with suitable weather conditions
+    for (let airport of sortedAirports) {
+      const weatherData = await getEnvironmentalData(airport.city);
+      const factors = extractFactors(weatherData);
+      console.log(factors)
+      if (checkWeatherConditions(factors)) {
+        nearestAirport1 = airport;
+        break;
+      }
+      // console.log(airport)
+    }
+    console.log(nearestAirport1)
+
+
+
+
     res.json({
       nearestAirport: nearestAirportDetails,
       minDistance,
