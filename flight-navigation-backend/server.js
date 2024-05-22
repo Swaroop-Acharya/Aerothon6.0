@@ -485,6 +485,45 @@ app.post('/api/airport-graphs', async (req, res) => {
 });
 
 
+
+// Fly status
+app.post("/api/getFlyStatus", async (req, res) => {
+  try {
+    const { origin, destination, citiesCovered } = req.body;
+    const locations = [origin, ...citiesCovered, destination];
+
+    const weatherPromises = locations.map(location => getEnvironmentalData(location));
+    const weatherResponses = await Promise.all(weatherPromises);
+
+    const results = weatherResponses.map(weatherData => {
+      const factors = extractFactors(weatherData);
+      const isSuitable = checkWeatherConditions(factors);
+      return {
+        location: factors.location,
+        weather: factors,
+        suitable: isSuitable
+      };
+    });
+
+    // Check if all locations have suitable weather conditions
+    const allSuitable = results.every(result => result.suitable);
+
+    // Add the flying key to the response
+    const response = {
+      flying: allSuitable,
+      locations: results
+    };
+    console.log(response);
+    res.status(200).json(response);
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json({ status: "error", message: "Failed to fetch environmental data" });
+  }
+});
+
+
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
