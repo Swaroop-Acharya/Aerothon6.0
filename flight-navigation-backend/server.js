@@ -117,7 +117,7 @@ app.post("/api/get-nearest-airport", async (req, res) => {
       return response.data.data.map((airport) => ({
         iataCode: airport.iataCode,
         name: airport.name,
-        city:airport.address.cityName,
+        city: airport.address.cityName,
         geoCode: {
           latitude: airport.geoCode.latitude,
           longitude: airport.geoCode.longitude,
@@ -222,18 +222,18 @@ app.post("/api/get-nearest-airport", async (req, res) => {
     );
 
     // Prepare the sorted list of all airports
-   
+
     const sortedAirports = validAirports
       .filter((airport) => airport.distance !== null && airport.distance > 0)
       .map((airport) => ({
-        iataCode:airport.iataCode,
+        iataCode: airport.iataCode,
         name: airport.name,
-        city:airport.city,
+        city: airport.city,
         distance: airport.distance,
       }))
       .sort((a, b) => a.distance - b.distance);
-    
-      let nearestAirport1 = null;
+
+    let nearestAirport1 = null;
 
     // Iterate through airports to find nearest airport with suitable weather conditions
     for (let airport of sortedAirports) {
@@ -248,9 +248,6 @@ app.post("/api/get-nearest-airport", async (req, res) => {
     }
     // console.log(nearestAirport1)
 
-
-
-
     res.json({
       nearestAirport: nearestAirportDetails,
       minDistance,
@@ -264,20 +261,114 @@ app.post("/api/get-nearest-airport", async (req, res) => {
   }
 });
 
+const routes = [
+  {
+    origin: "Mangalore",
+    originIATACode: "IXE",
+    destination: "Chennai International",
+    destinationIATACode: "MAA",
+    citiesCovered: ["Chikkamagaluru", "Vellore"],
+  },
+  {
+    origin: "Mangalore",
+    originIATACode: "IXE",
+    destination: "Coimbatore International",
+    destinationIATACode: "CJB",
+    citiesCovered: ["Chikkamagaluru", "Mysore"],
+  },
+  {
+    origin: "Mangalore",
+    originIATACode: "IXE",
+    destination: "Tirupati",
+    destinationIATACode: "TIR",
+    citiesCovered: ["Chikkamagaluru", "Chittoor"],
+  },
+  {
+    origin: "Mangalore",
+    originIATACode: "IXE",
+    destination: "Cuddapah",
+    destinationIATACode: "CDP",
+    citiesCovered: ["Chikkamagaluru", "Chittoor"],
+  },
+  {
+    origin: "Chennai International",
+    originIATACode: "MAA",
+    destination: "Bangalore",
+    destinationIATACode: "BLR",
+    citiesCovered: ["Vellore"],
+  },
+  {
+    origin: "Coimbatore International",
+    originIATACode: "CJB",
+    destination: "Bangalore",
+    destinationIATACode: "BLR",
+    citiesCovered: ["Mysore"],
+  },
+  {
+    origin: "Tirupati",
+    originIATACode: "TIR",
+    destination: "Bangalore",
+    destinationIATACode: "BLR",
+    citiesCovered: ["Chittoor"],
+  },
+  {
+    origin: "Cuddapah",
+    originIATACode: "CDP",
+    destination: "Bangalore",
+    destinationIATACode: "BLR",
+    citiesCovered: ["Chittoor"],
+  },
+];
 
+const getCitiesCovered = (originIATACode, destinationIATACode, routes) => {
+  const findRoute = (origin, destination) =>
+    routes.find(
+      (route) =>
+        (route.originIATACode === origin &&
+          route.destinationIATACode === destination) ||
+        (route.originIATACode === destination &&
+          route.destinationIATACode === origin)
+    );
 
-
-
+  const directRoute = findRoute(originIATACode, destinationIATACode);
+  if (directRoute) {
+    return directRoute.citiesCovered;
+  } else {
+    // Check for indirect routes
+    for (let route of routes) {
+      if (route.originIATACode === originIATACode) {
+        const intermediateRoute = findRoute(
+          route.destinationIATACode,
+          destinationIATACode
+        );
+        if (intermediateRoute) {
+          return [...route.citiesCovered, ...intermediateRoute.citiesCovered];
+        }
+      } else if (route.destinationIATACode === originIATACode) {
+        const intermediateRoute = findRoute(
+          route.originIATACode,
+          destinationIATACode
+        );
+        if (intermediateRoute) {
+          return [...route.citiesCovered, ...intermediateRoute.citiesCovered];
+        }
+      }
+    }
+    return `No route found for ${originIATACode} to ${destinationIATACode}`;
+  }
+};
 
 //Alternative api's
 function calculateDistance(lat1, lon1, lat2, lon2) {
   const R = 6371; // Radius of the Earth in kilometers
-  const dLat = (lat2 - lat1) * Math.PI / 180; // Convert degrees to radians
-  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180; // Convert degrees to radians
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
   const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const distance = R * c; // Distance in kilometers
   return distance;
@@ -285,10 +376,12 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 
 const fetchAirportDistance = async (sourceIataCode, destinationIataCode) => {
   try {
-    const response = await axios.post(`https://airportgap.com/api/airports/distance?from=${sourceIataCode}&to=${destinationIataCode}`);
+    const response = await axios.post(
+      `https://airportgap.com/api/airports/distance?from=${sourceIataCode}&to=${destinationIataCode}`
+    );
     return response.data.data; // Extract and return the airport distance data from the response
   } catch (error) {
-    console.error('Error fetching airport distance data:', error);
+    console.error("Error fetching airport distance data:", error);
     return null; // Return null if there's an error
   }
 };
@@ -296,43 +389,87 @@ const fetchAirportDistance = async (sourceIataCode, destinationIataCode) => {
 // Function to fetch airport data from the API
 const fetchAirportData = async (latitude, longitude, radius) => {
   try {
-    const response = await axios.get(`https://test.api.amadeus.com/v1/reference-data/locations/airports?latitude=${latitude}&longitude=${longitude}&radius=${radius}&page[limit]=10&page[offset]=0&sort=relevance`, {
-      headers: {
-        accept: "application/vnd.amadeus+json",
-        Authorization: `Bearer ${process.env.AMADEUS_API_KEY}`,
-      },
-    });
+    const response = await axios.get(
+      `https://test.api.amadeus.com/v1/reference-data/locations/airports?latitude=${latitude}&longitude=${longitude}&radius=${radius}&page[limit]=10&page[offset]=0&sort=relevance`,
+      {
+        headers: {
+          accept: "application/vnd.amadeus+json",
+          Authorization: `Bearer ${process.env.AMADEUS_API_KEY}`,
+        },
+      }
+    );
     return response.data.data; // Extract and return the airport data from the response
   } catch (error) {
-    console.error('Error fetching airport data:', error);
+    console.error("Error fetching airport data:", error);
     return null; // Return null if there's an error
   }
 };
 
+async function getFlyStatus(citiesCovered) {
+  try {
+    const weatherPromises = citiesCovered.map((location) =>
+      getEnvironmentalData(location)
+    );
+    const weatherResponses = await Promise.all(weatherPromises);
+
+    const results = weatherResponses.map((weatherData) => {
+      const factors = extractFactors(weatherData);
+      const isSuitable = checkWeatherConditions(factors);
+      return isSuitable;
+    });
+
+    const allSuitable = results.every((result) => result);
+
+    return { flyingStatus: allSuitable };
+  } catch (error) {
+    console.error("Error in getFlyStatus:", error);
+    return { status: "error", message: "Failed to fetch environmental data" };
+  }
+}
+
 // Function to construct graph representing connections between airports based on distances
 const constructGraph = (airports, sourceIataCode) => {
   const graph = {};
-  
-  airports.forEach(sourceAirport => {
+
+  airports.forEach((sourceAirport) => {
     // Skip if the current airport is the same as the sourceIataCode
     if (sourceAirport.iataCode === sourceIataCode) {
       return;
     }
-    
+
     const sourceLat = sourceAirport.geoCode.latitude;
     const sourceLon = sourceAirport.geoCode.longitude;
 
-    airports.forEach(airport => {
+    airports.forEach(async (airport) => {
       // Skip if the airport is the same as the sourceIataCode or the sourceAirport
-      if (airport.iataCode !== sourceAirport.iataCode && airport.iataCode !== sourceIataCode) {
+      if (
+        airport.iataCode !== sourceAirport.iataCode &&
+        airport.iataCode !== sourceIataCode
+      ) {
         const distance = calculateDistance(
-          sourceLat, sourceLon,
-          airport.geoCode.latitude, airport.geoCode.longitude
+          sourceLat,
+          sourceLon,
+          airport.geoCode.latitude,
+          airport.geoCode.longitude
         );
         if (!graph[sourceAirport.iataCode]) {
           graph[sourceAirport.iataCode] = [];
         }
-        graph[sourceAirport.iataCode].push({ iataCode: airport.iataCode, distance: distance });
+        const result = getCitiesCovered(
+          sourceAirport.iataCode,
+          airport.iataCode,
+          routes
+          );
+        //   console.log(sourceAirport.iataCode + "=>" + airport.iataCode);
+        // console.log(result);
+        // const flag = await getFlyStatus(result);
+
+        // console.log(flag);
+
+        graph[sourceAirport.iataCode].push({
+          iataCode: airport.iataCode,
+          distance: distance,
+        });
       }
     });
   });
@@ -341,23 +478,35 @@ const constructGraph = (airports, sourceIataCode) => {
 };
 
 // Function to construct graph1 representing connections between airports based on distances
-const constructGraph1 = (airportData, sourceLat, sourceLon, sourceIataCode, skipIataCode) => {
+const constructGraph1 = (
+  airportData,
+  sourceLat,
+  sourceLon,
+  sourceIataCode,
+  skipIataCode
+) => {
   const graph = {};
 
-  
-
-  airportData.forEach(airport => {
-    
+  airportData.forEach(async (airport) => {
     if (airport.iataCode !== skipIataCode) {
-      
-        const distance = calculateDistance(
-            sourceLat, sourceLon,
-            airport.geoCode.latitude, airport.geoCode.longitude
-        );
-        if (!graph[sourceIataCode]) {
-            graph[sourceIataCode] = [];
-        }
-        graph[sourceIataCode].push({ iataCode: airport.iataCode, distance: distance });
+      const distance = calculateDistance(
+        sourceLat,
+        sourceLon,
+        airport.geoCode.latitude,
+        airport.geoCode.longitude
+      );
+      if (!graph[sourceIataCode]) {
+        graph[sourceIataCode] = [];
+      }
+      // console.log(sourceIataCode+"=>"+airport.iataCode)
+      // const result =getCitiesCovered(sourceIataCode,airport.iataCode,routes)
+      // console.log(result)
+      // const flag=await getFlyStatus(result);
+      // console.log(flag)
+      graph[sourceIataCode].push({
+        iataCode: airport.iataCode,
+        distance: distance,
+      });
     }
   });
 
@@ -367,33 +516,33 @@ const constructGraph1 = (airportData, sourceLat, sourceLon, sourceIataCode, skip
 // Priority Queue implementation
 class PriorityQueue {
   constructor() {
-      this.items = [];
+    this.items = [];
   }
 
   enqueue(element, priority) {
-      let contain = false;
-      const qElement = { element, priority };
+    let contain = false;
+    const qElement = { element, priority };
 
-      for (let i = 0; i < this.items.length; i++) {
-          if (this.items[i].priority > qElement.priority) {
-              this.items.splice(i, 0, qElement);
-              contain = true;
-              break;
-          }
+    for (let i = 0; i < this.items.length; i++) {
+      if (this.items[i].priority > qElement.priority) {
+        this.items.splice(i, 0, qElement);
+        contain = true;
+        break;
       }
+    }
 
-      if (!contain) {
-          this.items.push(qElement);
-      }
+    if (!contain) {
+      this.items.push(qElement);
+    }
   }
 
   dequeue() {
-      if (this.isEmpty()) return "Underflow";
-      return this.items.shift();
+    if (this.isEmpty()) return "Underflow";
+    return this.items.shift();
   }
 
   isEmpty() {
-      return this.items.length === 0;
+    return this.items.length === 0;
   }
 }
 
@@ -408,29 +557,29 @@ function findShortestPath(graph, startNode, endNode) {
   pq.enqueue(startNode, 0);
 
   for (let node in graph) {
-      if (node !== startNode) {
-          distances[node] = Infinity;
-      }
-      prev[node] = null;
+    if (node !== startNode) {
+      distances[node] = Infinity;
+    }
+    prev[node] = null;
   }
 
   while (!pq.isEmpty()) {
-      const minNode = pq.dequeue().element;
-      if (minNode === endNode) break;
+    const minNode = pq.dequeue().element;
+    if (minNode === endNode) break;
 
-      graph[minNode].forEach(neighbor => {
-          const alt = distances[minNode] + parseFloat(neighbor.distance);
-          if (alt < distances[neighbor.iataCode]) {
-              distances[neighbor.iataCode] = alt;
-              prev[neighbor.iataCode] = minNode;
-              pq.enqueue(neighbor.iataCode, alt);
-          }
-      });
+    graph[minNode].forEach((neighbor) => {
+      const alt = distances[minNode] + parseFloat(neighbor.distance);
+      if (alt < distances[neighbor.iataCode]) {
+        distances[neighbor.iataCode] = alt;
+        prev[neighbor.iataCode] = minNode;
+        pq.enqueue(neighbor.iataCode, alt);
+      }
+    });
   }
 
   const path = [];
   for (let at = endNode; at !== null; at = prev[at]) {
-      path.push(at);
+    path.push(at);
   }
   path.reverse();
 
@@ -438,14 +587,17 @@ function findShortestPath(graph, startNode, endNode) {
 }
 
 // Route to fetch and return the airport graphs
-app.post('/api/airport-graphs', async (req, res) => {
+app.post("/api/airport-graphs", async (req, res) => {
   const { sourceIataCode, destinationIataCode } = req.body; // Extract source and destination IATA codes from request body
   console.log(req.body);
-  
-  const airportDistanceData = await fetchAirportDistance(sourceIataCode, destinationIataCode); // Fetch airport distance data
-  
+
+  const airportDistanceData = await fetchAirportDistance(
+    sourceIataCode,
+    destinationIataCode
+  ); // Fetch airport distance data
+
   if (!airportDistanceData) {
-    res.status(500).json({ error: 'Error fetching airport distance data' }); // Return error if data fetch fails
+    res.status(500).json({ error: "Error fetching airport distance data" }); // Return error if data fetch fails
     return;
   }
 
@@ -454,25 +606,30 @@ app.post('/api/airport-graphs', async (req, res) => {
   const destinationLat = airportDistanceData.attributes.to_airport.latitude;
   const destinationLon = airportDistanceData.attributes.to_airport.longitude;
   const skipIataCode = airportDistanceData.attributes.to_airport.iata; // Skip destination IATA code
-  
+
   // Fetch airport data
-  const airportData = await fetchAirportData(destinationLat, destinationLon, 280);
+  const airportData = await fetchAirportData(
+    destinationLat,
+    destinationLon,
+    280
+  );
   if (!airportData) {
-    res.status(500).json({ error: 'Error fetching airport data' }); // Return error if data fetch fails
+    res.status(500).json({ error: "Error fetching airport data" }); // Return error if data fetch fails
     return;
   }
 
   // Construct the graphs
-  const graph = constructGraph(airportData,sourceIataCode);
-  const graph1 = constructGraph1(airportData, sourceLat, sourceLon, sourceIataCode, skipIataCode);
+  const graph = constructGraph(airportData, sourceIataCode);
+  const graph1 = constructGraph1(
+    airportData,
+    sourceLat,
+    sourceLon,
+    sourceIataCode,
+    skipIataCode
+  );
 
-
-
-    // Merge the graphs
-  const mergedGraph = {...graph1, ...graph};
-
-
-  console.log(mergedGraph)
+  // Merge the graphs
+  const mergedGraph = { ...graph1, ...graph };
 
   // Find the shortest path using Dijkstra's algorithm
   const result = findShortestPath(mergedGraph, sourceIataCode, skipIataCode);
@@ -480,49 +637,32 @@ app.post('/api/airport-graphs', async (req, res) => {
   // Send the shortest path and total distance as JSON response
   res.json({
     path: result.path.join(" -> "),
-    distance: `${result.distance} KM`
+    distance: `${result.distance} KM`,
   });
 });
 
-
-
 // Fly status
-app.post("/api/getFlyStatus", async (req, res) => {
-  try {
-    const { origin, destination, citiesCovered } = req.body;
-    const locations = [origin, ...citiesCovered, destination];
+// app.post("/api/getFlyStatus", async (req, res) => {
+//   try {
+//     const citiesCovered = req.body;
 
-    const weatherPromises = locations.map(location => getEnvironmentalData(location));
-    const weatherResponses = await Promise.all(weatherPromises);
+//     const weatherPromises = citiesCovered.map(location => getEnvironmentalData(location));
+//     const weatherResponses = await Promise.all(weatherPromises);
 
-    const results = weatherResponses.map(weatherData => {
-      const factors = extractFactors(weatherData);
-      const isSuitable = checkWeatherConditions(factors);
-      return {
-        location: factors.location,
-        weather: factors,
-        suitable: isSuitable
-      };
-    });
+//     const results = weatherResponses.map(weatherData => {
+//       const factors = extractFactors(weatherData);
+//       const isSuitable = checkWeatherConditions(factors);
+//       return isSuitable;
+//     });
 
-    // Check if all locations have suitable weather conditions
-    const allSuitable = results.every(result => result.suitable);
+//     const allSuitable = results.every(result => result);
 
-    // Add the flying key to the response
-    const response = {
-      flying: allSuitable,
-      locations: results
-    };
-    console.log(response);
-    res.status(200).json(response);
-  } catch (error) {
-    console.log(error);
-    res
-      .status(500)
-      .json({ status: "error", message: "Failed to fetch environmental data" });
-  }
-});
-
+//     res.status(200).json({ flyingStatus: allSuitable });
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).json({ status: "error", message: "Failed to fetch environmental data" });
+//   }
+// });
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
