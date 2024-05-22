@@ -12,9 +12,9 @@ function FlightForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white w-full flex shadow-md  rounded px-8 pt-6 pb-8 mb-4"
+      className="bg-white gap-3 w-full flex flex-col items-center shadow-md rounded px-8 pt-6 pb-8 mb-4"
     >
-      <div className="mb-4">
+      <div className="mb-4 w-full">
         <label className="block text-gray-700 text-sm font-bold mb-2">
           From Airport:
         </label>
@@ -26,7 +26,7 @@ function FlightForm({
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         />
       </div>
-      <div className="mb-4">
+      <div className="mb-4 w-full">
         <label className="block text-gray-700 text-sm font-bold mb-2">
           To Airport:
         </label>
@@ -38,7 +38,7 @@ function FlightForm({
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         />
       </div>
-      <div className="mb-4">
+      <div className="mb-4 w-full">
         <label className="block text-gray-700 text-sm font-bold mb-2">
           Operation:
         </label>
@@ -51,7 +51,7 @@ function FlightForm({
           <option value="landing">Landing</option>
         </select>
       </div>
-      <div className="flex items-center justify-between">
+      <div className=" w-full">
         <button
           type="submit"
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"

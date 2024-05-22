@@ -239,14 +239,14 @@ app.post("/api/get-nearest-airport", async (req, res) => {
     for (let airport of sortedAirports) {
       const weatherData = await getEnvironmentalData(airport.city);
       const factors = extractFactors(weatherData);
-      console.log(factors)
+      // console.log(factors)
       if (checkWeatherConditions(factors)) {
         nearestAirport1 = airport;
         break;
       }
       // console.log(airport)
     }
-    console.log(nearestAirport1)
+    // console.log(nearestAirport1)
 
 
 
@@ -263,6 +263,228 @@ app.post("/api/get-nearest-airport", async (req, res) => {
       .json({ status: "error", message: "Failed to fetch airport data" });
   }
 });
+
+
+
+
+
+
+//Alternative api's
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Radius of the Earth in kilometers
+  const dLat = (lat2 - lat1) * Math.PI / 180; // Convert degrees to radians
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distance = R * c; // Distance in kilometers
+  return distance;
+}
+
+const fetchAirportDistance = async (sourceIataCode, destinationIataCode) => {
+  try {
+    const response = await axios.post(`https://airportgap.com/api/airports/distance?from=${sourceIataCode}&to=${destinationIataCode}`);
+    return response.data.data; // Extract and return the airport distance data from the response
+  } catch (error) {
+    console.error('Error fetching airport distance data:', error);
+    return null; // Return null if there's an error
+  }
+};
+
+// Function to fetch airport data from the API
+const fetchAirportData = async (latitude, longitude, radius) => {
+  try {
+    const response = await axios.get(`https://test.api.amadeus.com/v1/reference-data/locations/airports?latitude=${latitude}&longitude=${longitude}&radius=${radius}&page[limit]=10&page[offset]=0&sort=relevance`, {
+      headers: {
+        accept: "application/vnd.amadeus+json",
+        Authorization: `Bearer ${process.env.AMADEUS_API_KEY}`,
+      },
+    });
+    return response.data.data; // Extract and return the airport data from the response
+  } catch (error) {
+    console.error('Error fetching airport data:', error);
+    return null; // Return null if there's an error
+  }
+};
+
+// Function to construct graph representing connections between airports based on distances
+const constructGraph = (airports, sourceIataCode) => {
+  const graph = {};
+  
+  airports.forEach(sourceAirport => {
+    // Skip if the current airport is the same as the sourceIataCode
+    if (sourceAirport.iataCode === sourceIataCode) {
+      return;
+    }
+    
+    const sourceLat = sourceAirport.geoCode.latitude;
+    const sourceLon = sourceAirport.geoCode.longitude;
+
+    airports.forEach(airport => {
+      // Skip if the airport is the same as the sourceIataCode or the sourceAirport
+      if (airport.iataCode !== sourceAirport.iataCode && airport.iataCode !== sourceIataCode) {
+        const distance = calculateDistance(
+          sourceLat, sourceLon,
+          airport.geoCode.latitude, airport.geoCode.longitude
+        );
+        if (!graph[sourceAirport.iataCode]) {
+          graph[sourceAirport.iataCode] = [];
+        }
+        graph[sourceAirport.iataCode].push({ iataCode: airport.iataCode, distance: distance });
+      }
+    });
+  });
+
+  return graph;
+};
+
+// Function to construct graph1 representing connections between airports based on distances
+const constructGraph1 = (airportData, sourceLat, sourceLon, sourceIataCode, skipIataCode) => {
+  const graph = {};
+
+  
+
+  airportData.forEach(airport => {
+    
+    if (airport.iataCode !== skipIataCode) {
+      
+        const distance = calculateDistance(
+            sourceLat, sourceLon,
+            airport.geoCode.latitude, airport.geoCode.longitude
+        );
+        if (!graph[sourceIataCode]) {
+            graph[sourceIataCode] = [];
+        }
+        graph[sourceIataCode].push({ iataCode: airport.iataCode, distance: distance });
+    }
+  });
+
+  return graph;
+};
+
+// Priority Queue implementation
+class PriorityQueue {
+  constructor() {
+      this.items = [];
+  }
+
+  enqueue(element, priority) {
+      let contain = false;
+      const qElement = { element, priority };
+
+      for (let i = 0; i < this.items.length; i++) {
+          if (this.items[i].priority > qElement.priority) {
+              this.items.splice(i, 0, qElement);
+              contain = true;
+              break;
+          }
+      }
+
+      if (!contain) {
+          this.items.push(qElement);
+      }
+  }
+
+  dequeue() {
+      if (this.isEmpty()) return "Underflow";
+      return this.items.shift();
+  }
+
+  isEmpty() {
+      return this.items.length === 0;
+  }
+}
+
+// Function to find the shortest path using Dijkstra's algorithm
+function findShortestPath(graph, startNode, endNode) {
+  const distances = {};
+  const prev = {};
+  const pq = new PriorityQueue();
+  // console.log(startNode,endNode)
+
+  distances[startNode] = 0;
+  pq.enqueue(startNode, 0);
+
+  for (let node in graph) {
+      if (node !== startNode) {
+          distances[node] = Infinity;
+      }
+      prev[node] = null;
+  }
+
+  while (!pq.isEmpty()) {
+      const minNode = pq.dequeue().element;
+      if (minNode === endNode) break;
+
+      graph[minNode].forEach(neighbor => {
+          const alt = distances[minNode] + parseFloat(neighbor.distance);
+          if (alt < distances[neighbor.iataCode]) {
+              distances[neighbor.iataCode] = alt;
+              prev[neighbor.iataCode] = minNode;
+              pq.enqueue(neighbor.iataCode, alt);
+          }
+      });
+  }
+
+  const path = [];
+  for (let at = endNode; at !== null; at = prev[at]) {
+      path.push(at);
+  }
+  path.reverse();
+
+  return { path, distance: distances[endNode] };
+}
+
+// Route to fetch and return the airport graphs
+app.post('/api/airport-graphs', async (req, res) => {
+  const { sourceIataCode, destinationIataCode } = req.body; // Extract source and destination IATA codes from request body
+  console.log(req.body);
+  
+  const airportDistanceData = await fetchAirportDistance(sourceIataCode, destinationIataCode); // Fetch airport distance data
+  
+  if (!airportDistanceData) {
+    res.status(500).json({ error: 'Error fetching airport distance data' }); // Return error if data fetch fails
+    return;
+  }
+
+  const sourceLat = airportDistanceData.attributes.from_airport.latitude;
+  const sourceLon = airportDistanceData.attributes.from_airport.longitude;
+  const destinationLat = airportDistanceData.attributes.to_airport.latitude;
+  const destinationLon = airportDistanceData.attributes.to_airport.longitude;
+  const skipIataCode = airportDistanceData.attributes.to_airport.iata; // Skip destination IATA code
+  
+  // Fetch airport data
+  const airportData = await fetchAirportData(destinationLat, destinationLon, 280);
+  if (!airportData) {
+    res.status(500).json({ error: 'Error fetching airport data' }); // Return error if data fetch fails
+    return;
+  }
+
+  // Construct the graphs
+  const graph = constructGraph(airportData,sourceIataCode);
+  const graph1 = constructGraph1(airportData, sourceLat, sourceLon, sourceIataCode, skipIataCode);
+
+
+
+    // Merge the graphs
+  const mergedGraph = {...graph1, ...graph};
+
+
+  console.log(mergedGraph)
+
+  // Find the shortest path using Dijkstra's algorithm
+  const result = findShortestPath(mergedGraph, sourceIataCode, skipIataCode);
+
+  // Send the shortest path and total distance as JSON response
+  res.json({
+    path: result.path.join(" -> "),
+    distance: `${result.distance} KM`
+  });
+});
+
+
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });

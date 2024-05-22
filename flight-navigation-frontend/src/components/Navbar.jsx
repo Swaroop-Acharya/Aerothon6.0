@@ -1,17 +1,33 @@
-import React from 'react';
-
+import React from "react";
+import { Link } from "react-router-dom";
 export default function Navbar() {
   return (
     <nav className="bg-[rgb(7,26,61)] p-4">
       <div className="container mx-auto flex items-center justify-between">
-        <div className="text-white text-2xl font-bold">
-          AIRBUS
-        </div>
+        <div className="text-white text-2xl font-bold">AIRBUS</div>
         <div className="flex space-x-4">
-          <a href="#" className="text-white hover:text-gray-300">Home</a>
-          <a href="#" className="text-white hover:text-gray-300">About</a>
-          <a href="#" className="text-white hover:text-gray-300">Services</a>
-          <a href="#" className="text-white hover:text-gray-300">Contact</a>
+          <ul className="flex  space-x-4">
+            <li>
+              <Link to="/" className="text-white hover:text-gray-300">
+                Home
+              </Link>
+            </li>
+            <li>
+              <Link to="/altroute" className="text-white hover:text-gray-300">
+                Alternative Route
+              </Link>
+            </li>
+            <li>
+              <Link to="/dashboard" className="text-white hover:text-gray-300">
+                Dashboard
+              </Link>
+            </li>
+            <li>
+              <Link to="/contact" className="text-white hover:text-gray-300">
+                Contact
+              </Link>
+            </li>
+          </ul>
         </div>
       </div>
     </nav>
