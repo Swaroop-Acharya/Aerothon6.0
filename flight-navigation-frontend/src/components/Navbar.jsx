@@ -11,25 +11,21 @@ export default function Navbar() {
           <div className="flex space-x-4">
             <ul className="flex space-x-4">
               <li>
-                <Link to="/" className="nav-link font-semibold text-white">
+                <Link to="/" className=" font-semibold text-white">
                   Incident
                 </Link>
               </li>
               <li>
-                <Link to="/altroute" className="nav-link font-semibold text-white">
+                <Link to="/altroute" className=" font-semibold text-white">
                   Alternative Route
                 </Link>
               </li>
               <li>
-                <Link to="/dashboard" className="nav-link font-semibold text-white">
+                <Link to="/dashboard" className=" font-semibold text-white">
                   Dashboard
                 </Link>
               </li>
-              <li>
-                <Link to="/contact" className="nav-link font-semibold text-white">
-                  Contact
-                </Link>
-              </li>
+             
             </ul>
           </div>
         </div>

@@ -110,7 +110,7 @@ export default function FlightSearchBar() {
   return (
     <div className="container mx-auto p-4">
       <div className="flex">
-        <div className="w-full ">
+        <div className="w-full block ">
           <FlightForm
             fromAirport={fromAirport}
             setFromAirport={setFromAirport}
@@ -121,11 +121,14 @@ export default function FlightSearchBar() {
             handleSubmit={handleSubmit}
           />
         </div>
+        <div>
+
         {flightType === "landing" && weatherData && (
-          <div className="w-full md:w-1/2">
+          <div className="w-full  block">
             <WeatherCard weatherData={weatherData} setNearbyRoute={setNearbyRoute} />
           </div>
         )}
+        </div>
       </div>
       <div className="flex space-x-4">
         <div className="w-[300px] bg-gray-100 p-4 rounded shadow-md">
@@ -135,7 +138,7 @@ export default function FlightSearchBar() {
         <div className="w-full">
           <FlightMap route={nearbyRoute || route} />
         </div>
-        <div className="w-1/3 bg-gray-100 p-4 rounded shadow-md">
+        <div className="w-1/3 bg-gray-100 block p-4 rounded shadow-md">
           <FlightInfo
             fromAirportInfo={fromAirportInfo}
             toAirportInfo={toAirportInfo}

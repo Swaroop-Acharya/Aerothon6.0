@@ -32,6 +32,7 @@ function NearbyAirportSearcher({ setNearbyRoute }) { // Accept setNearbyRoute as
         [parseFloat(data.nearestAirport.geoCode.latitude), parseFloat(data.nearestAirport.geoCode.longitude)],
       ]);
       setResult(data);
+      console.log(result)
     } catch (error) {
       console.error("Error fetching nearby airport:", error);
     }
@@ -39,8 +40,8 @@ function NearbyAirportSearcher({ setNearbyRoute }) { // Accept setNearbyRoute as
 
   return (
     <div>
-      <h3>Nearby Airport Search</h3>
-      <form onSubmit={handleSearch}>
+     
+      <form className="flex gap-2 flex-col" onSubmit={handleSearch}>
         <input
           type="text"
           value={latitude}
@@ -62,13 +63,14 @@ function NearbyAirportSearcher({ setNearbyRoute }) { // Accept setNearbyRoute as
           placeholder="Radius (km)"
           required
         />
-        <button type="submit">Search</button>
+        <button className="text-white rounded p-1 bg-cyan-700" type="submit">Search</button>
       </form>
       {result && (
-        <div>
-          <h4>Search Result</h4>
+        <div className="bg-slate-300 rounded p-2 mt-2">
+          <h4 className="font-semibold">Search Result</h4>
           <p>Nearest Airport: {result.nearestAirport.name}</p>
-          <p>Distance: {result.min} km</p>
+          <p>Iata Code: {result.nearestAirport.iataCode}</p>
+          <p>Distance: {result.minDistance} km</p>
         </div>
       )}
     </div>
