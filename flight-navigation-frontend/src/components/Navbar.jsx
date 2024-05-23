@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 export default function Navbar() {
   return (
-    <nav className="bg-[rgb(7,26,61)] p-4">
+    <nav className="bg-[rgb(7,26,61)] p-6">
       <div className="container mx-auto flex items-center justify-between">
         <div className="text-white text-2xl font-bold">AIRBUS</div>
         <div className="flex space-x-4">

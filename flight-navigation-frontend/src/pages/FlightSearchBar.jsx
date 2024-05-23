@@ -1,3 +1,4 @@
+// FlightSearchBar.jsx
 import React, { useState } from "react";
 import axios from "axios";
 import { MapContainer, TileLayer, Marker, Polyline } from "react-leaflet";
@@ -6,6 +7,7 @@ import FlightForm from "./FlightForm";
 import FlightMap from "./FlightMap";
 import FlightInfo from "./FlightInfo";
 import WeatherCard from "./WeatherCard";
+import NearbyAirportSearcher from "./NearbyAirportSearcher";
 
 export default function FlightSearchBar() {
   const [fromAirport, setFromAirport] = useState("");
@@ -16,6 +18,7 @@ export default function FlightSearchBar() {
   const [fromAirportInfo, setFromAirportInfo] = useState(null);
   const [toAirportInfo, setToAirportInfo] = useState(null);
   const [weatherData, setWeatherData] = useState(null);
+  const [nearbyRoute, setNearbyRoute] = useState(null); // New state for nearby airport route
 
   function checkWeatherConditions(weatherData, location) {
     const minVisibility = 1.0;
@@ -48,10 +51,7 @@ export default function FlightSearchBar() {
   }
 
   function canOperateSafely(from_weatherData, to_weatherData) {
-    const fromConditions = checkWeatherConditions(
-      from_weatherData,
-      "departure"
-    );
+    const fromConditions = checkWeatherConditions(from_weatherData, "departure");
     const toConditions = checkWeatherConditions(to_weatherData, "destination");
 
     if (fromConditions && toConditions) {
@@ -123,7 +123,7 @@ export default function FlightSearchBar() {
         </div>
         {flightType === "landing" && weatherData && (
           <div className="w-full md:w-1/2">
-            <WeatherCard weatherData={weatherData} />
+            <WeatherCard weatherData={weatherData} setNearbyRoute={setNearbyRoute} />
           </div>
         )}
       </div>
@@ -133,7 +133,7 @@ export default function FlightSearchBar() {
           <p>Dummy flight data here...</p>
         </div>
         <div className="w-full">
-          <FlightMap route={route} />
+          <FlightMap route={nearbyRoute || route} />
         </div>
         <div className="w-1/3 bg-gray-100 p-4 rounded shadow-md">
           <FlightInfo

@@ -1,6 +1,7 @@
+// NearbyAirportSearcher.jsx
 import React, { useState } from "react";
 
-function NearbyAirportSearcher() {
+function NearbyAirportSearcher({ setNearbyRoute }) { // Accept setNearbyRoute as a prop
   const [longitude, setLongitude] = useState("");
   const [latitude, setLatitude] = useState("");
   const [radius, setRadius] = useState("");
@@ -24,70 +25,52 @@ function NearbyAirportSearcher() {
       });
       const data = await response.json();
       console.log(data)
-      // setResult(data);
+      console.log(data)
+      // Update the nearby route using setNearbyRoute
+      setNearbyRoute([
+        [latitude,longitude],
+        [parseFloat(data.nearestAirport.geoCode.latitude), parseFloat(data.nearestAirport.geoCode.longitude)],
+      ]);
+      setResult(data);
     } catch (error) {
-      console.error("Error fetching nearest airport:", error);
+      console.error("Error fetching nearby airport:", error);
     }
   };
 
   return (
-    <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-      <h2 className="text-xl font-bold mb-4">Nearby Airport Search</h2>
-      <p>Since you cannot land in your destination airport, if you are willing to find nearby airports to land, provide the following details:</p>
+    <div>
+      <h3>Nearby Airport Search</h3>
       <form onSubmit={handleSearch}>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">
-            Longitude:
-          </label>
-          <input
-            type="text"
-            value={longitude}
-            onChange={(e) => setLongitude(e.target.value)}
-            placeholder="Enter longitude"
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">
-            Latitude:
-          </label>
-          <input
-            type="text"
-            value={latitude}
-            onChange={(e) => setLatitude(e.target.value)}
-            placeholder="Enter latitude"
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">
-            Radius (km):
-          </label>
-          <input
-            type="text"
-            value={radius}
-            onChange={(e) => setRadius(e.target.value)}
-            placeholder="Enter radius in kilometers"
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          />
-        </div>
-        <div className="flex items-center justify-between">
-          <button
-            type="submit"
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-          >
-            Search
-          </button>
-        </div>
+        <input
+          type="text"
+          value={latitude}
+          onChange={(e) => setLatitude(e.target.value)}
+          placeholder="Latitude"
+          required
+        />
+        <input
+          type="text"
+          value={longitude}
+          onChange={(e) => setLongitude(e.target.value)}
+          placeholder="Longitude"
+          required
+        />
+        <input
+          type="text"
+          value={radius}
+          onChange={(e) => setRadius(e.target.value)}
+          placeholder="Radius (km)"
+          required
+        />
+        <button type="submit">Search</button>
       </form>
-      {/* {result && (
-        <div className="mt-4">
-          <h3 className="text-lg font-bold">Nearest Airport</h3>
-          <p><strong>Name:</strong> {result.nearestAirport.name}</p>
-          <p><strong>IATA Code:</strong> {result.nearestAirport.iataCode}</p>
-          <p><strong>Distance:</strong> {result.minDistance.toFixed(2)} km</p>
+      {result && (
+        <div>
+          <h4>Search Result</h4>
+          <p>Nearest Airport: {result.nearestAirport.name}</p>
+          <p>Distance: {result.min} km</p>
         </div>
-      )} */}
+      )}
     </div>
   );
 }

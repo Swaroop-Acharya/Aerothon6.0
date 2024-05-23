@@ -680,11 +680,48 @@ app.post("/api/airport-graphs", async (req, res) => {
 
   // Send the shortest path and total distance as JSON response
   res.json({
-    path: result.path.join(" -> "),
-    distance: `${result.distance} KM`,
+    path: result.path,
+    distance: `${result.distance.toFixed(2)}`,
   });
 });
 
+
+
+
+app.post('/api/airport-graphs', async (req, res) => {
+  try {
+    const { sourceIataCode, destinationIataCode } = req.body;
+    const response = await axios.post('http://localhost:5000/api/airport-graphs', {
+      sourceIataCode,
+      destinationIataCode,
+    });
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+app.post('/api/airport-distance', async (req, res) => {
+  try {
+    const { from, to } = req.body;
+    const response = await axios.post('https://airportgap.com/api/airports/distance', { from, to });
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+app.get('/api/flight-fuel', async (req, res) => {
+  try {
+    const { aircraft, distance, gcd } = req.query;
+    const response = await axios.get('https://despouy.ca/flight-fuel-api/q/', {
+      params: { aircraft, distance, gcd }
+    });
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
 
 
 app.listen(port, () => {

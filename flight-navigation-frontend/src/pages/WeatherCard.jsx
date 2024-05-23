@@ -1,7 +1,8 @@
+// WeatherCard.jsx
 import React, { useEffect, useState } from "react";
 import NearbyAirportSearcher from "./NearbyAirportSearcher";
 
-function WeatherCard({ weatherData }) {
+function WeatherCard({ weatherData, setNearbyRoute }) { // Accept setNearbyRoute as a prop
   const [showNearbyAirportSearcher, setShowNearbyAirportSearcher] = useState(false);
 
   useEffect(() => {
@@ -50,7 +51,7 @@ function WeatherCard({ weatherData }) {
         <p>UV Index: {weatherData.uvIndex}</p>
         <p>Last Updated: {weatherData.lastUpdated}</p>
       </div>
-      {showNearbyAirportSearcher && <NearbyAirportSearcher />}
+      {showNearbyAirportSearcher && <NearbyAirportSearcher setNearbyRoute={setNearbyRoute} />}
     </div>
   );
 }
