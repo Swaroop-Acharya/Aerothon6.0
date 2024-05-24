@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import NearbyAirportSearcher from "./NearbyAirportSearcher";
 import { Modal, Button } from "react-bootstrap";
-
+import {toast} from 'react-toastify';
 function WeatherCard({ weatherData, setNearbyRoute }) {
   const [showModal, setShowModal] = useState(false);
 
@@ -16,16 +16,17 @@ function WeatherCard({ weatherData, setNearbyRoute }) {
   }, [weatherData]);
 
   const checkWeatherConditions = (windSpeed, visibility) => {
+    
     const minVisibility = 1.0; // Minimum visibility in km
     const maxWindSpeed = 1.0; // Maximum wind speed in km/h
 
     if (visibility < minVisibility) {
-      alert(`Cannot fly because visibility is too low. Flight will be delayed.`);
+      toast.error(`Cannot Land because visibility is too low.`);
       return false;
     }
 
     if (windSpeed > maxWindSpeed) {
-      alert(`Cannot fly because wind speed is too high. Flight will be delayed.`);
+      toast.error(`Cannot Land because wind speed is too high.`);
       return false;
     }
 

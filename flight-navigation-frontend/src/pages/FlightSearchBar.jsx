@@ -1,13 +1,12 @@
-// FlightSearchBar.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { MapContainer, TileLayer, Marker, Polyline } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
 import FlightForm from "./FlightForm";
 import FlightMap from "./FlightMap";
 import FlightInfo from "./FlightInfo";
 import WeatherCard from "./WeatherCard";
-import NearbyAirportSearcher from "./NearbyAirportSearcher";
+import FlightDetailsCard from "./FlightDetailsCard";
+import { toast } from "react-toastify";
+import WeatherDetails from "./WeatherDetails";
 
 export default function FlightSearchBar() {
   const [fromAirport, setFromAirport] = useState("");
@@ -18,15 +17,37 @@ export default function FlightSearchBar() {
   const [fromAirportInfo, setFromAirportInfo] = useState(null);
   const [toAirportInfo, setToAirportInfo] = useState(null);
   const [weatherData, setWeatherData] = useState(null);
-  const [nearbyRoute, setNearbyRoute] = useState(null); // New state for nearby airport route
+  const [nearbyRoute, setNearbyRoute] = useState(null);
+  const [aircraftData, setAircraftData] = useState([]);
+  const [selectedAircraftModel, setSelectedAircraftModel] = useState("");
+  const [showFlightDetails, setShowFlightDetails] = useState(false);
+
+  const [fromWeatherData, setFromWeatherData] = useState("");
+  const [toWeatherData, setToWeatherData] = useState("");
+
+  useEffect(() => {
+    const fetchAircraftData = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/aircraft");
+        console.log("Aircraft data fetched:", response.data.aircraft);
+        setAircraftData(response.data.aircraft);
+      } catch (error) {
+        console.error("Error fetching aircraft data:", error);
+      }
+    };
+
+    fetchAircraftData();
+  }, []);
 
   function checkWeatherConditions(weatherData, location) {
     const minVisibility = 1.0;
     const maxWindSpeed = 20.0;
 
     if (!weatherData) {
-      alert(
-        `Cannot fetch weather data for ${location}. Flight status is unknown.`
+      toast.error(
+        "Cannot fetch weather data for " +
+          location +
+          ". Flight status is unknown."
       );
       return false;
     }
@@ -34,15 +55,19 @@ export default function FlightSearchBar() {
     let conditionMet = true;
 
     if (weatherData.visibility && weatherData.visibility.km < minVisibility) {
-      alert(
-        `Cannot fly because ${location} visibility is too low. Flight will be delayed.`
+      toast.error(
+        "Cannot fly because " +
+          location +
+          " visibility is too low. Flight will be delayed"
       );
       conditionMet = false;
     }
 
     if (weatherData.wind && weatherData.wind.speed > maxWindSpeed) {
-      alert(
-        `Cannot fly because ${location} wind speed is too high. Flight will be delayed.`
+      toast.error(
+        "Cannot fly because " +
+          location +
+          " visibility is too low. Flight will be delayed"
       );
       conditionMet = false;
     }
@@ -51,11 +76,14 @@ export default function FlightSearchBar() {
   }
 
   function canOperateSafely(from_weatherData, to_weatherData) {
-    const fromConditions = checkWeatherConditions(from_weatherData, "departure");
+    const fromConditions = checkWeatherConditions(
+      from_weatherData,
+      "departure"
+    );
     const toConditions = checkWeatherConditions(to_weatherData, "destination");
 
     if (fromConditions && toConditions) {
-      alert(`Flight can operate safely.`);
+      toast("Flight can operate safely.");
     }
   }
 
@@ -84,7 +112,13 @@ export default function FlightSearchBar() {
 
       console.log(from_weatherData);
       console.log(to_weatherData);
-      canOperateSafely(from_weatherData, to_weatherData);
+
+      setFromWeatherData(from_weatherData);
+      setToWeatherData(to_weatherData);
+
+      if (flightType === "takeoff") {
+        canOperateSafely(from_weatherData, to_weatherData);
+      }
 
       const { from_airport, to_airport, kilometers } =
         response.data.data.attributes;
@@ -102,10 +136,22 @@ export default function FlightSearchBar() {
       setRoute([fromCoords, toCoords]);
       setKilometers(kilometers);
       setWeatherData(to_weatherData);
+      setShowFlightDetails(true);
+
+      const selectedAircraft = aircraftData.find(
+        (aircraft) => aircraft.model === selectedAircraftModel
+      );
+      if (selectedAircraft) {
+        console.log("Selected Aircraft ID:", selectedAircraft.aircraftID);
+      }
     } catch (error) {
       console.error("Error fetching the location data:", error);
     }
   };
+
+  const selectedAircraft = aircraftData?.find(
+    (aircraft) => aircraft.model === selectedAircraftModel
+  );
 
   return (
     <div className="container mx-auto p-4">
@@ -118,34 +164,56 @@ export default function FlightSearchBar() {
             setToAirport={setToAirport}
             flightType={flightType}
             setFlightType={setFlightType}
+            aircraftData={aircraftData}
+            selectedAircraftModel={selectedAircraftModel}
+            setSelectedAircraftModel={setSelectedAircraftModel}
             handleSubmit={handleSubmit}
           />
         </div>
         <div>
+          {flightType === "landing" && weatherData && (
+            <div className="w-full block">
+              <WeatherCard
+                weatherData={weatherData}
+                setNearbyRoute={setNearbyRoute}
+              />
+            </div>
+          )}
+        </div>
+      </div>
 
-        {flightType === "landing" && weatherData && (
-          <div className="w-full  block">
-            <WeatherCard weatherData={weatherData} setNearbyRoute={setNearbyRoute} />
+      {showFlightDetails && (
+        <div>
+          <div className="flex space-x-4">
+            <div className="w-1/3 bg-gray-100 block p-4 rounded shadow-md">
+              <FlightInfo
+                AirportInfo={fromAirportInfo}
+                kilometers={kilometers}
+                path="Source"
+              />
+            </div>
+            <div className="w-full">
+              <FlightMap route={nearbyRoute || route} />
+            </div>
+            <div className="w-1/3 bg-gray-100 block p-4 rounded shadow-md">
+              <FlightInfo
+                AirportInfo={toAirportInfo}
+                kilometers={kilometers}
+                path="Destination"
+              />
+            </div>
           </div>
-        )}
+          <div className=" flex gap-3  w-2/4 h-2/4">
+            <WeatherDetails weatherData={fromWeatherData} path="Source" />
+            <WeatherDetails weatherData={toWeatherData} path="Destination"/>
+          </div>
+          <div className="mt-3 gap-3 justify-center rounded  flex">
+            <div className="w-2/3 h-2/4">
+              <FlightDetailsCard aircraft={selectedAircraft} />
+            </div>
+          </div>
         </div>
-      </div>
-      <div className="flex space-x-4">
-        <div className="w-[300px] bg-gray-100 p-4 rounded shadow-md">
-          <h2 className="text-xl font-bold mb-4">Flight Data</h2>
-          <p>Dummy flight data here...</p>
-        </div>
-        <div className="w-full">
-          <FlightMap route={nearbyRoute || route} />
-        </div>
-        <div className="w-1/3 bg-gray-100 block p-4 rounded shadow-md">
-          <FlightInfo
-            fromAirportInfo={fromAirportInfo}
-            toAirportInfo={toAirportInfo}
-            kilometers={kilometers}
-          />
-        </div>
-      </div>
+      )}
     </div>
   );
 }

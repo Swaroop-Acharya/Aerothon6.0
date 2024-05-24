@@ -6,7 +6,7 @@ function FlightMap({ route }) {
   const indiaCenter = [20.5937, 78.9629]; // Coordinates for the center of India
 
   return (
-    <div className="w-full h-96">
+    <div className="w-full rounded h-96">
       <MapContainer center={indiaCenter} zoom={5} style={{ height: "100%", width: "100%" }}>
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

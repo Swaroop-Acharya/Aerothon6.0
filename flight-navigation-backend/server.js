@@ -724,6 +724,90 @@ app.get('/api/flight-fuel', async (req, res) => {
 });
 
 
+const aircraftData = [
+  {
+    "model": "Airbus A320",
+    "aircraftID": "A320-001",
+    "flightHours": 25300,
+    "cycles": 12500,
+    "engineHealth": {
+      "engine1": {
+        "EGTMargin": 50,
+        "vibration": 1.5,
+        "oilPressure": "Normal"
+      },
+      "engine2": {
+        "EGTMargin": 55,
+        "vibration": 1.6,
+        "oilPressure": "Normal"
+      }
+    },
+    "componentStatus": {
+      "hydraulicSystem": "Normal",
+      "avionics": "Normal",
+      "landingGear": "Normal"
+    },
+    "systemAlerts": []
+  },
+  {
+    "model": "Boeing 737",
+    "aircraftID": "B737-005",
+    "flightHours": 30000,
+    "cycles": 14000,
+    "engineHealth": {
+      "engine1": {
+        "EGTMargin": 45,
+        "vibration": 1.4,
+        "oilPressure": "Normal"
+      },
+      "engine2": {
+        "EGTMargin": 47,
+        "vibration": 1.3,
+        "oilPressure": "Normal"
+      }
+    },
+    "componentStatus": {
+      "hydraulicSystem": "Minor leak detected in System B",
+      "avionics": "Normal",
+      "landingGear": "Normal"
+    },
+    "systemAlerts": [
+      "Hydraulic pressure warning in System B (Maintenance required)"
+    ]
+  },
+  {
+    "model": "Embraer E175",
+    "aircraftID": "E175-010",
+    "flightHours": 20500,
+    "cycles": 10000,
+    "engineHealth": {
+      "engine1": {
+        "EGTMargin": 60,
+        "vibration": 1.2,
+        "oilPressure": "Normal"
+      },
+      "engine2": {
+        "EGTMargin": 62,
+        "vibration": 1.3,
+        "oilPressure": "Normal"
+      }
+    },
+    "componentStatus": {
+      "hydraulicSystem": "Normal",
+      "avionics": "Minor issue with navigation system",
+      "landingGear": "Normal"
+    },
+    "systemAlerts": [
+      "Navigation system error (Non-critical, Monitor)"
+    ]
+  }
+];
+
+app.get("/api/aircraft", (req, res) => {
+  res.json({ aircraft: aircraftData });
+});
+
+
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
