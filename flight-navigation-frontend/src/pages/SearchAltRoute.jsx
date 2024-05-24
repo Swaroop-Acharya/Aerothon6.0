@@ -78,7 +78,7 @@ export default function SearchAltRoute() {
       );
 
       const { fuel: altFuel, co2: altCo2 } = altFuelResponse.data[0];
-      
+      await axios.post('http://localhost:5000/api/insertFlightFuel', altFuelResponse.data[0]);
       setAltFuelInfo({ distance, altFuel, altCo2 });
 
     } catch (error) {

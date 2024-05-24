@@ -2,6 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const axios = require("axios");
 const cors = require("cors");
+const mysql=require('mysql')
 dotenv.config();
 
 const app = express();
@@ -10,28 +11,245 @@ app.use(express.json());
 
 const port = process.env.PORT || 5000;
 
-app.get("/api/check-db-connection", async (req, res) => {
+
+//DB CONNECTION
+const db = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: '20042002',
+  database: 'airbus'
+});
+db.connect((err) => {
+  if (err) {
+    console.error('Error connecting to the database:', err);
+    return;
+  }
+  console.log('Connected to the database');
+});
+
+
+
+
+
+
+
+
+
+
+
+
+app.post('/api/insertAirport', (req, res) => {
   try {
-    const client = await pool.connect();
-    client.release();
-    res.json({
-      status: "success",
-      message: "PostgreSQL database connected successfully",
+    // Get the entire response data from the request body
+    const responseData = req.body;
+
+    // Ensure that the necessary data is present in the request body
+    if (!responseData || !responseData.data || !responseData.data.attributes || !responseData.data.attributes.from_airport) {
+      console.error('Invalid request body:', responseData);
+      return res.status(400).send('Invalid request body');
+    }
+
+    // Extract relevant data from responseData
+    const airportData = responseData.data.attributes.from_airport;
+
+    const { name: airport_name, city, country, iata: iata_code, icao: icao_code, latitude, longitude, altitude } = airportData;
+
+    // Create the INSERT INTO statement
+    const insertQuery = `
+      INSERT INTO Airports (AirportName, City, Country, IATA_Code, ICAO_Code, AirportLatitude, AirportLongitude, Altitude)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    // Execute the query with the extracted data
+    db.query(insertQuery, [airport_name, city, country, iata_code, icao_code, latitude, longitude, altitude], (err, results) => {
+      if (err) {
+        console.error('Error inserting data into the Airports table:', err);
+        return res.status(500).send('Error inserting data into the Airports table');
+      }
+      console.log('Data inserted successfully');
+      res.status(200).send('Data inserted successfully');
     });
+
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      status: "error",
-      message: "Failed to connect to PostgreSQL database",
-    });
+    console.error("Error handling request:", error);
+    res.status(500).send('Error handling request');
   }
 });
+
+
+app.post('/api/insertDestinationAirport', (req, res) => {
+  try {
+    // Ensure that the request body contains the necessary data
+    const { data } = req.body;
+    if (!data || !data.attributes || !data.attributes.to_airport) {
+      console.error('Invalid request body:', req.body);
+      return res.status(400).send('Invalid request body');
+    }
+
+    // Extract relevant data for the destination airport
+    const { to_airport } = data.attributes;
+    const {
+      name: destinationAirportName,
+      city: destinationCity,
+      country: destinationCountry,
+      iata: destinationIataCode,
+      icao: destinationIcaoCode,
+      latitude: destinationLatitude,
+      longitude: destinationLongitude,
+      altitude: destinationAltitude,
+      timezone
+    } = to_airport;
+
+    // Create the INSERT INTO statement for destination airport data
+    const insertQuery = `
+      INSERT INTO DestinationAirport (destinationAirportName, destinationCity, destinationCountry, destinationIataCode, destinationIcaoCode, destinationLatitude, destinationLongitude, destinationAltitude, timezone)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    // Execute the insertion query for destination airport data
+    db.query(insertQuery, [destinationAirportName, destinationCity, destinationCountry, destinationIataCode, destinationIcaoCode, destinationLatitude, destinationLongitude, destinationAltitude, timezone], (err, results) => {
+      if (err) {
+        console.error('Error inserting data into the DestinationAirport table:', err);
+        return res.status(500).send('Error inserting data into the DestinationAirport table');
+      }
+      
+      // If insertion was successful, send a success response
+      res.status(200).send('Destination airport data inserted successfully');
+    });
+
+  } catch (error) {
+    console.error("Error handling request:", error);
+    res.status(500).send('Error handling request');
+  }
+});
+
+
+app.post("/api/near", async (req, res) => {
+  try {
+    // Extract data for the nearest airport from the request body
+    const { nearestAirportName, nearestCity, nearestIataCode } = req.body.nearestAirport;
+
+    // Insert the data for the nearest airport into the NearestAirport table
+    const nearestAirportInsertQuery = `
+      INSERT INTO NearestAirport (AirportName, City, IATA_Code)
+      VALUES (?, ?, ?)
+    `;
+
+    // Execute the insert query for the nearest airport
+    db.query(nearestAirportInsertQuery, [nearestAirportName, nearestCity, nearestIataCode], (err, results) => {
+      if (err) {
+        console.error('Error inserting data for nearest airport into the NearestAirport table:', err);
+        return res.status(500).send('Error inserting data for nearest airport into the NearestAirport table');
+      }
+
+      // Extract data for all airports from the request body
+      const allAirports = req.body.allAirports;
+
+      // Insert data for all airports into the NearestAirport table
+      const allAirportsInsertQuery = `
+        INSERT INTO NearestAirport (AirportName, City, IATA_Code)
+        VALUES (?, ?, ?)
+      `;
+
+      // Iterate over all airports and execute the insert query for each airport
+      allAirports.forEach(airport => {
+        const { iataCode, name, city } = airport;
+        db.query(allAirportsInsertQuery, [name, city, iataCode], (err, results) => {
+          if (err) {
+            console.error('Error inserting data for airport into the NearestAirport table:', err);
+          }
+        });
+      });
+
+      // Send a success response if all insertions were successful
+      res.status(200).json({ status: "success", message: "Data inserted into NearestAirport table successfully" });
+    });
+  } catch (error) {
+    console.error("Error handling request:", error);
+    res.status(500).send('Error handling request');
+  }
+});
+
+
+app.post('/api/insertFlightFuel', (req, res) => {
+  try {
+    const fuelData = req.body;
+    console.log( [fuelData.icao24, fuelData.distance, fuelData.fuel, fuelData.co2, fuelData.iata, fuelData.icao, fuelData.model, fuelData.gcd]);
+
+   // Insert the data into the Fuel table
+    const insertQuery = `
+      INSERT INTO Fuel (ICAO24, Distance, Fuel, Co2, IATA_Code, ICAO_Code, Model, GcdTrue)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    
+
+    // Execute the insert query
+    db.query(insertQuery, [fuelData.icao24, fuelData.distance, fuelData.fuel, fuelData.co2, fuelData.iata, fuelData.icao, fuelData.model, fuelData.gcd], (err, results) => {
+      if (err) {
+        console.error('Error inserting flight fuel data into the Fuel table:', err);
+        return res.status(500).json({ status: 'error', message: 'Error inserting flight fuel data into the Fuel table' });
+      }
+      
+      // If insertion was successful, send a success response
+      res.status(200).json({ status: 'success', message: 'Flight fuel data inserted successfully' });
+    });
+  } catch (error) {
+    console.error('Error handling request:', error);
+    res.status(500).json({ status: 'error', message: 'Error handling request' });
+  }
+});
+
+
+
+
+
+
 
 app.post("/api/getlocation", async (req, res) => {
   try {
     const { location } = req.body;
     const weatherData = await getEnvironmentalData(location);
     const factors = extractFactors(weatherData);
+    const insertQuery = `
+      INSERT INTO Weather (
+        Location,
+        WeatherText,
+        Latitude,
+        Longitude,
+        WindSpeed,
+        WindDirection,
+        VisibilityKm,
+        TemperatureCelsius,
+        PressureMb,
+        PrecipitationMm,
+        Humidity,
+        CloudCover,
+        UvIndex,
+        GustMph,
+        TimeStamp
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, UNIX_TIMESTAMP(?))
+    `;
+    
+    const values = [
+      factors.location,
+      factors.text,
+      factors.latitude,
+      factors.longitude,
+      factors.wind.speed,
+      factors.wind.direction,
+      factors.visibility.km,
+      factors.temperature.celsius,
+      factors.pressure.mb,
+      factors.precipitation.mm,
+      factors.humidity,
+      factors.cloudCover,
+      factors.uvIndex,
+      factors.gust.mph,
+      factors.lastUpdated
+    ];
+    
+    await db.query(insertQuery, values);
     res.status(200).json(factors);
   } catch (error) {
     console.log(error);
@@ -412,11 +630,57 @@ async function getFlyStatus(citiesCovered) {
     );
     const weatherResponses = await Promise.all(weatherPromises);
 
-    const results = weatherResponses.map((weatherData) => {
+    const results = await Promise.all(weatherResponses.map(async (weatherData) => {
       const factors = extractFactors(weatherData);
+      console.log(factors);
+
+      const insertQuery = `
+        INSERT INTO Weather (
+          Location,
+          WeatherText,
+          Latitude,
+          Longitude,
+          WindSpeed,
+          WindDirection,
+          VisibilityKm,
+          TemperatureCelsius,
+          PressureMb,
+          PrecipitationMm,
+          Humidity,
+          CloudCover,
+          UvIndex,
+          GustMph,
+          TimeStamp
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, UNIX_TIMESTAMP(?))
+      `;
+      
+      const values = [
+        factors.location,
+        factors.text,
+        factors.latitude,
+        factors.longitude,
+        factors.wind.speed,
+        factors.wind.direction,
+        factors.visibility.km,
+        factors.temperature.celsius,
+        factors.pressure.mb,
+        factors.precipitation.mm,
+        factors.humidity,
+        factors.cloudCover,
+        factors.uvIndex,
+        factors.gust.mph,
+        factors.lastUpdated
+      ];
+
+      try {
+        await db.query(insertQuery, values);
+      } catch (dbError) {
+        console.error('Error inserting weather data:', dbError);
+      }
+
       const isSuitable = checkWeatherConditions(factors);
       return isSuitable;
-    });
+    }));
 
     const allSuitable = results.every((result) => result);
 

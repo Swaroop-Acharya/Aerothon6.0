@@ -109,7 +109,8 @@ export default function FlightSearchBar() {
       );
       const from_weatherData = getWeatherResponse1.data;
       const to_weatherData = getWeatherResponse2.data;
-
+      await axios.post('http://localhost:5000/api/insertAirport', response.data);
+      await axios.post('http://localhost:5000/api/insertDestinationAirport', response.data);
       console.log(from_weatherData);
       console.log(to_weatherData);
 

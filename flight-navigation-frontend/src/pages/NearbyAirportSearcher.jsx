@@ -1,6 +1,6 @@
 // NearbyAirportSearcher.jsx
 import React, { useState } from "react";
-
+import axios from "axios";
 function NearbyAirportSearcher({ setNearbyRoute }) { // Accept setNearbyRoute as a prop
   const [longitude, setLongitude] = useState("");
   const [latitude, setLatitude] = useState("");
@@ -24,8 +24,9 @@ function NearbyAirportSearcher({ setNearbyRoute }) { // Accept setNearbyRoute as
         })
       });
       const data = await response.json();
+      await axios.post('http://localhost:5000/api/near', data);
       console.log(data)
-      console.log(data)
+      
       // Update the nearby route using setNearbyRoute
       setNearbyRoute([
         [latitude,longitude],

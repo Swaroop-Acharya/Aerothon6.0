@@ -1,11 +1,13 @@
-const mysql = require("mysql");
-
-const connection = mysql.createConnection({
-  host: "localhost",
-  database: "flight-navigation",
-  user: "root",
-  password: "root",
+const db = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: 'root',
+  database: 'airbus'
 });
-
-
-module.exports=connection;
+db.connect((err) => {
+  if (err) {
+    console.error('Error connecting to the database:', err);
+    return;
+  }
+  console.log('Connected to the database');
+});
