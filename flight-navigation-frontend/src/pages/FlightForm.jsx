@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 function FlightForm({
   fromAirport,
@@ -12,9 +12,30 @@ function FlightForm({
   setSelectedAircraftModel,
   handleSubmit,
 }) {
+  const [errors, setErrors] = useState({});
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!fromAirport) newErrors.fromAirport = "From Airport is required";
+    if (!toAirport) newErrors.toAirport = "To Airport is required";
+    if (!selectedAircraftModel) newErrors.selectedAircraftModel = "Aircraft Model is required";
+    return newErrors;
+  };
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+    } else {
+      setErrors({});
+      handleSubmit(e);
+    }
+  };
+
   return (
     <form
-      onSubmit={handleSubmit}
+      onSubmit={onSubmit}
       className="bg-white gap-3 w-full flex flex-col items-center shadow-md rounded px-8 pt-6 pb-8 mb-4"
     >
       <div className="flex flex-wrap mb-4 w-full">
@@ -27,8 +48,13 @@ function FlightForm({
             value={fromAirport}
             onChange={(e) => setFromAirport(e.target.value)}
             placeholder="Enter departure airport IATA code"
-            className=" appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className={`appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${
+              errors.fromAirport ? 'border-red-500' : ''
+            }`}
           />
+          {errors.fromAirport && (
+            <p className="text-red-500 text-xs italic">{errors.fromAirport}</p>
+          )}
         </div>
         <div className="w-full md:w-1/2 pl-2">
           <label className="block text-gray-700 text-sm font-bold mb-2">
@@ -39,8 +65,13 @@ function FlightForm({
             value={toAirport}
             onChange={(e) => setToAirport(e.target.value)}
             placeholder="Enter destination airport IATA code"
-            className=" appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className={`appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${
+              errors.toAirport ? 'border-red-500' : ''
+            }`}
           />
+          {errors.toAirport && (
+            <p className="text-red-500 text-xs italic">{errors.toAirport}</p>
+          )}
         </div>
       </div>
       <div className="flex flex-wrap mb-4 w-full">
@@ -64,7 +95,9 @@ function FlightForm({
           <select
             value={selectedAircraftModel}
             onChange={(e) => setSelectedAircraftModel(e.target.value)}
-            className=" appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className={`appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${
+              errors.selectedAircraftModel ? 'border-red-500' : ''
+            }`}
           >
             <option value="" disabled>
               Select an aircraft model
@@ -76,6 +109,9 @@ function FlightForm({
                 </option>
               ))}
           </select>
+          {errors.selectedAircraftModel && (
+            <p className="text-red-500 text-xs italic">{errors.selectedAircraftModel}</p>
+          )}
         </div>
       </div>
       <div className="w-full">

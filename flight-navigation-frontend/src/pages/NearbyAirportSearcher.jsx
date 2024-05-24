@@ -1,14 +1,36 @@
 // NearbyAirportSearcher.jsx
 import React, { useState } from "react";
 import axios from "axios";
-function NearbyAirportSearcher({ setNearbyRoute }) { // Accept setNearbyRoute as a prop
+
+function NearbyAirportSearcher({ setNearbyRoute }) { 
   const [longitude, setLongitude] = useState("");
   const [latitude, setLatitude] = useState("");
   const [radius, setRadius] = useState("");
   const [result, setResult] = useState(null);
+  const [errors, setErrors] = useState({});
+
+  const validateInputs = () => {
+    let errors = {};
+    if (!latitude) {
+      errors.latitude = "Latitude is required.";
+    }
+    if (!longitude) {
+      errors.longitude = "Longitude is required.";
+    }
+    if (!radius) {
+      errors.radius = "Radius is required.";
+    }
+    return errors;
+  };
 
   const handleSearch = async (e) => {
     e.preventDefault();
+    const validationErrors = validateInputs();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+    setErrors({});
 
     try {
       const response = await fetch("http://localhost:5000/api/get-nearest-airport", {
@@ -25,15 +47,13 @@ function NearbyAirportSearcher({ setNearbyRoute }) { // Accept setNearbyRoute as
       });
       const data = await response.json();
       await axios.post('http://localhost:5000/api/near', data);
-      console.log(data)
-      
-      // Update the nearby route using setNearbyRoute
+      console.log(data);
+
       setNearbyRoute([
-        [latitude,longitude],
+        [latitude, longitude],
         [parseFloat(data.nearestAirport.geoCode.latitude), parseFloat(data.nearestAirport.geoCode.longitude)],
       ]);
       setResult(data);
-      console.log(result)
     } catch (error) {
       console.error("Error fetching nearby airport:", error);
     }
@@ -41,7 +61,6 @@ function NearbyAirportSearcher({ setNearbyRoute }) { // Accept setNearbyRoute as
 
   return (
     <div>
-     
       <form className="flex gap-2 flex-col" onSubmit={handleSearch}>
         <input
           type="text"
@@ -50,6 +69,7 @@ function NearbyAirportSearcher({ setNearbyRoute }) { // Accept setNearbyRoute as
           placeholder="Latitude"
           required
         />
+        {errors.latitude && <p className="text-red-500">{errors.latitude}</p>}
         <input
           type="text"
           value={longitude}
@@ -57,6 +77,7 @@ function NearbyAirportSearcher({ setNearbyRoute }) { // Accept setNearbyRoute as
           placeholder="Longitude"
           required
         />
+        {errors.longitude && <p className="text-red-500">{errors.longitude}</p>}
         <input
           type="text"
           value={radius}
@@ -64,6 +85,7 @@ function NearbyAirportSearcher({ setNearbyRoute }) { // Accept setNearbyRoute as
           placeholder="Radius (km)"
           required
         />
+        {errors.radius && <p className="text-red-500">{errors.radius}</p>}
         <button className="text-white rounded p-1 bg-cyan-700" type="submit">Search</button>
       </form>
       {result && (

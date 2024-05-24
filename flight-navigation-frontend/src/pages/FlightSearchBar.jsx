@@ -29,7 +29,7 @@ export default function FlightSearchBar() {
     const fetchAircraftData = async () => {
       try {
         const response = await axios.get("http://localhost:5000/api/aircraft");
-        console.log(response.data)
+        console.log(response.data);
         console.log("Aircraft data fetched:", response.data);
         setAircraftData(response.data);
       } catch (error) {
@@ -40,10 +40,17 @@ export default function FlightSearchBar() {
     fetchAircraftData();
   }, []);
 
-  function checkWeatherConditions(weatherData, location) {
-    const minVisibility = 1.0;
-    const maxWindSpeed = 20.0;
 
+  function checkWeatherConditions(weatherData, location) {
+    const minVisibilityKm = 5; // Minimum visibility in kilometers
+    const maxWindSpeedKph = 40; // Maximum wind speed in kilometers per hour
+    const maxCloudCover = 80; // Maximum cloud cover in percentage
+    const minTemperatureC = -40; // Minimum temperature in Celsius
+    const maxTemperatureC = 49; // Maximum temperature in Celsius
+    const minPressureMb = 950; // Minimum pressure in millibars
+    const maxHumidity = 95; // Maximum humidity in percentage
+    const maxUVIndex = 5; // Maximum UV index
+  
     if (!weatherData) {
       toast.error(
         "Cannot fetch weather data for " +
@@ -52,28 +59,78 @@ export default function FlightSearchBar() {
       );
       return false;
     }
-
+  
     let conditionMet = true;
-
-    if (weatherData.visibility && weatherData.visibility.km < minVisibility) {
+  
+  
+    
+    // Check visibility
+    if (factors.visibility.km < minVisibilityKm) {
       toast.error(
-        "Cannot fly because " +
-          location +
-          " visibility is too low. Flight will be delayed"
+        "Cannot fly because visibility at " + location + " is too low. Flight will be delayed."
       );
       conditionMet = false;
     }
-
-    if (weatherData.wind && weatherData.wind.speed > maxWindSpeed) {
+  
+    // Check wind speed
+    if (factors.wind.speed > maxWindSpeedKph) {
       toast.error(
-        "Cannot fly because " +
-          location +
-          " visibility is too low. Flight will be delayed"
+        "Cannot fly because wind speed at " + location + " is too high. Flight will be delayed."
       );
       conditionMet = false;
     }
-
+  
+    // Check cloud cover
+    if (factors.cloudCover > maxCloudCover) {
+      toast.error(
+        "Cannot fly because cloud cover at " + location + " is too high. Flight will be delayed."
+      );
+      conditionMet = false;
+    }
+  
+    // Check temperature
+    if (factors.temperature.celsius < minTemperatureC || factors.temperature.celsius > maxTemperatureC) {
+      toast.error(
+        "Cannot fly because temperature at " + location + " is out of the safe range. Flight will be delayed."
+      );
+      conditionMet = false;
+    }
+  
+    // Check pressure
+    if (factors.pressure.mb < minPressureMb) {
+      toast.error(
+        "Cannot fly because pressure at " + location + " is too low. Flight will be delayed."
+      );
+      conditionMet = false;
+    }
+  
+    // Check humidity
+    if (factors.humidity > maxHumidity) {
+      toast.error(
+        "Cannot fly because humidity at " + location + " is too high. Flight will be delayed."
+      );
+      conditionMet = false;
+    }
+  
+    // Check UV index
+    if (factors.uvIndex > maxUVIndex) {
+      toast.error(
+        "Cannot fly because UV index at " + location + " is too high. Flight will be delayed."
+      );
+      conditionMet = false;
+    }
+  
     return conditionMet;
+  }
+  
+ 
+  function getCitiesCovered(origin, destination,routes) {
+
+    console.log(routes)
+    const route = routes.find(
+      (route) => route.origin === origin && route.destination === destination
+    );
+    return route ? route.citiesCovered : [];
   }
 
   function canOperateSafely(from_weatherData, to_weatherData) {
@@ -100,6 +157,10 @@ export default function FlightSearchBar() {
       const from_city = response.data.data.attributes.from_airport.city;
       const to_city = response.data.data.attributes.to_airport.city;
 
+      const routesData = await axios.get('http://localhost:5000/api/getRoute');
+      
+     
+      const citiesCovered = getCitiesCovered(from_city, to_city, routesData.data);
       const getWeatherResponse1 = await axios.post(
         "http://localhost:5000/api/getlocation",
         { location: from_city }
@@ -110,8 +171,18 @@ export default function FlightSearchBar() {
       );
       const from_weatherData = getWeatherResponse1.data;
       const to_weatherData = getWeatherResponse2.data;
-      await axios.post('http://localhost:5000/api/insertAirport', response.data);
-      await axios.post('http://localhost:5000/api/insertDestinationAirport', response.data);
+
+     
+      console.log(from_city, to_city, ...citiesCovered);
+
+      await axios.post(
+        "http://localhost:5000/api/insertAirport",
+        response.data
+      );
+      await axios.post(
+        "http://localhost:5000/api/insertDestinationAirport",
+        response.data
+      );
       console.log(from_weatherData);
       console.log(to_weatherData);
 
@@ -119,7 +190,37 @@ export default function FlightSearchBar() {
       setToWeatherData(to_weatherData);
 
       if (flightType === "takeoff") {
-        canOperateSafely(from_weatherData, to_weatherData);
+        
+        const fromFlyStatus = await axios.post(
+          `http://localhost:5000/api/getFlyStatus`,
+          [from_city]
+        );
+        const middleCitiesFlyStatus = await axios.post(
+          `http://localhost:5000/api/getFlyStatus`,
+          [to_city, ...citiesCovered]
+        );
+        const toFlyStatus = await axios.post(
+          `http://localhost:5000/api/getFlyStatus`,
+          [to_city]
+        );
+        
+        if (fromFlyStatus.data && toFlyStatus.data && middleCitiesFlyStatus.data == false) {
+          toast.error(
+            "Cities between Source and Destination weather condition is bad. Go for Alternative Route!!"
+          );
+        } else if (fromFlyStatus.data == false) {
+          toast.error(
+            "Source weather condition is bad, Flight takeoff will be delayed"
+          );
+        } else if(toFlyStatus.data==false) {
+          toast.error(
+            "Destination weather conditon is bad, Flight takeoff will be delayed"
+          )
+        }else{
+          toast(
+            "Flight can takeoff!!"
+          )
+        }
       }
 
       const { from_airport, to_airport, kilometers } =
@@ -139,7 +240,7 @@ export default function FlightSearchBar() {
       setKilometers(kilometers);
       setWeatherData(to_weatherData);
       setShowFlightDetails(true);
-      console.log(aircraftData)
+      console.log(aircraftData);
 
       const selectedAircraft = aircraftData.find(
         (aircraft) => aircraft.model === selectedAircraftModel
@@ -208,7 +309,7 @@ export default function FlightSearchBar() {
           </div>
           <div className=" flex gap-3  w-2/4 h-2/4">
             <WeatherDetails weatherData={fromWeatherData} path="Source" />
-            <WeatherDetails weatherData={toWeatherData} path="Destination"/>
+            <WeatherDetails weatherData={toWeatherData} path="Destination" />
           </div>
           <div className="mt-3 gap-3 justify-center rounded  flex">
             <div className="w-2/3 h-2/4">

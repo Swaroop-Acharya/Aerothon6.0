@@ -20,11 +20,7 @@ export default function Navbar() {
                   Alternative Route
                 </Link>
               </li>
-              <li>
-                <Link to="/dashboard" className=" font-semibold text-white">
-                  Dashboard
-                </Link>
-              </li>
+            
              
             </ul>
           </div>
