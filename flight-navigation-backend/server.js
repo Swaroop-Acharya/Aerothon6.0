@@ -2,7 +2,12 @@ const express = require("express");
 const dotenv = require("dotenv");
 const axios = require("axios");
 const cors = require("cors");
-const mysql=require('mysql')
+const mysql=require('mysql');
+ const fs = require('fs');
+const path = require('path');
+
+let routes=[]
+
 dotenv.config();
 
 const app = express();
@@ -10,6 +15,15 @@ app.use(cors());
 app.use(express.json());
 
 const port = process.env.PORT || 5000;
+
+fs.readFile('routes.json','utf-8',(err,data)=>{
+  if(err){
+    console.log("Errorr");
+    return;
+  }
+  routes=JSON.parse(data)
+})
+
 
 
 //DB CONNECTION
@@ -26,16 +40,6 @@ db.connect((err) => {
   }
   console.log('Connected to the database');
 });
-
-
-
-
-
-
-
-
-
-
 
 
 app.post('/api/insertAirport', (req, res) => {
@@ -478,65 +482,6 @@ app.post("/api/get-nearest-airport", async (req, res) => {
       .json({ status: "error", message: "Failed to fetch airport data" });
   }
 });
-
-const routes = [
-  {
-    origin: "Mangalore",
-    originIATACode: "IXE",
-    destination: "Chennai International",
-    destinationIATACode: "MAA",
-    citiesCovered: ["Chikkamagaluru", "Vellore"],
-  },
-  {
-    origin: "Mangalore",
-    originIATACode: "IXE",
-    destination: "Coimbatore International",
-    destinationIATACode: "CJB",
-    citiesCovered: ["Chikkamagaluru", "Mysore"],
-  },
-  {
-    origin: "Mangalore",
-    originIATACode: "IXE",
-    destination: "Tirupati",
-    destinationIATACode: "TIR",
-    citiesCovered: ["Chikkamagaluru", "Chittoor"],
-  },
-  {
-    origin: "Mangalore",
-    originIATACode: "IXE",
-    destination: "Cuddapah",
-    destinationIATACode: "CDP",
-    citiesCovered: ["Chikkamagaluru", "Chittoor"],
-  },
-  {
-    origin: "Chennai International",
-    originIATACode: "MAA",
-    destination: "Bangalore",
-    destinationIATACode: "BLR",
-    citiesCovered: ["Vellore"],
-  },
-  {
-    origin: "Coimbatore International",
-    originIATACode: "CJB",
-    destination: "Bangalore",
-    destinationIATACode: "BLR",
-    citiesCovered: ["Mysore"],
-  },
-  {
-    origin: "Tirupati",
-    originIATACode: "TIR",
-    destination: "Bangalore",
-    destinationIATACode: "BLR",
-    citiesCovered: ["Chittoor"],
-  },
-  {
-    origin: "Cuddapah",
-    originIATACode: "CDP",
-    destination: "Bangalore",
-    destinationIATACode: "BLR",
-    citiesCovered: ["Chittoor"],
-  },
-];
 
 const getCitiesCovered = (originIATACode, destinationIATACode, routes) => {
   const findRoute = (origin, destination) =>
@@ -988,87 +933,47 @@ app.get('/api/flight-fuel', async (req, res) => {
 });
 
 
-const aircraftData = [
-  {
-    "model": "Airbus A320",
-    "aircraftID": "A320-001",
-    "flightHours": 25300,
-    "cycles": 12500,
-    "engineHealth": {
-      "engine1": {
-        "EGTMargin": 50,
-        "vibration": 1.5,
-        "oilPressure": "Normal"
-      },
-      "engine2": {
-        "EGTMargin": 55,
-        "vibration": 1.6,
-        "oilPressure": "Normal"
-      }
-    },
-    "componentStatus": {
-      "hydraulicSystem": "Normal",
-      "avionics": "Normal",
-      "landingGear": "Normal"
-    },
-    "systemAlerts": []
-  },
-  {
-    "model": "Boeing 737",
-    "aircraftID": "B737-005",
-    "flightHours": 30000,
-    "cycles": 14000,
-    "engineHealth": {
-      "engine1": {
-        "EGTMargin": 45,
-        "vibration": 1.4,
-        "oilPressure": "Normal"
-      },
-      "engine2": {
-        "EGTMargin": 47,
-        "vibration": 1.3,
-        "oilPressure": "Normal"
-      }
-    },
-    "componentStatus": {
-      "hydraulicSystem": "Minor leak detected in System B",
-      "avionics": "Normal",
-      "landingGear": "Normal"
-    },
-    "systemAlerts": [
-      "Hydraulic pressure warning in System B (Maintenance required)"
-    ]
-  },
-  {
-    "model": "Embraer E175",
-    "aircraftID": "E175-010",
-    "flightHours": 20500,
-    "cycles": 10000,
-    "engineHealth": {
-      "engine1": {
-        "EGTMargin": 60,
-        "vibration": 1.2,
-        "oilPressure": "Normal"
-      },
-      "engine2": {
-        "EGTMargin": 62,
-        "vibration": 1.3,
-        "oilPressure": "Normal"
-      }
-    },
-    "componentStatus": {
-      "hydraulicSystem": "Normal",
-      "avionics": "Minor issue with navigation system",
-      "landingGear": "Normal"
-    },
-    "systemAlerts": [
-      "Navigation system error (Non-critical, Monitor)"
-    ]
-  }
-];
-
 app.get("/api/aircraft", (req, res) => {
-  res.json({ aircraft: aircraftData });
+
+
+
+  const query = `SELECT * FROM aircraft_data`;
+
+  db.query(query, (error, results) => {
+    if (error) {
+      console.error('Error fetching data:', error);
+      res.status(500).send('Internal Server Error');
+      return;
+    }
+
+    const models = results.map(row => ({
+      model: row.model_name,
+      aircraftID: row.aircraft_id,
+      flightHours: row.flight_hours,
+      cycles: row.cycles,
+      engineHealth: {
+        engine1: {
+          EGTMargin: row.engine1_egt_margin,
+          vibration: row.engine1_vibration,
+          oilPressure: row.engine1_oil_pressure
+        },
+        engine2: {
+          EGTMargin: row.engine2_egt_margin,
+          vibration: row.engine2_vibration,
+          oilPressure: row.engine2_oil_pressure
+        }
+      },
+      componentStatus: {
+        hydraulicSystem: row.hydraulic_system,
+        avionics: row.avionics,
+        landingGear: row.landing_gear
+      },
+      systemAlerts: row.system_alerts ? row.system_alerts.split(',') : []
+    }));
+
+
+    res.json(models);
+  });
 });
 
 

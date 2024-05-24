@@ -29,8 +29,9 @@ export default function FlightSearchBar() {
     const fetchAircraftData = async () => {
       try {
         const response = await axios.get("http://localhost:5000/api/aircraft");
-        console.log("Aircraft data fetched:", response.data.aircraft);
-        setAircraftData(response.data.aircraft);
+        console.log(response.data)
+        console.log("Aircraft data fetched:", response.data);
+        setAircraftData(response.data);
       } catch (error) {
         console.error("Error fetching aircraft data:", error);
       }
@@ -138,6 +139,7 @@ export default function FlightSearchBar() {
       setKilometers(kilometers);
       setWeatherData(to_weatherData);
       setShowFlightDetails(true);
+      console.log(aircraftData)
 
       const selectedAircraft = aircraftData.find(
         (aircraft) => aircraft.model === selectedAircraftModel

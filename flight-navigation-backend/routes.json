@@ -1,0 +1,229 @@
+[
+    {
+      "origin": "Mangalore",
+      "originIATAcode": "IXE",
+      "destination": "Bangalore",
+      "destinationIATAcode": "BLR",
+      "citiesCovered": ["Udupi", "Tumakuru"]
+    },
+	{
+      "origin": "Bangalore",
+      "originIATAcode": "BLR",
+      "destination": "Tirupathi",
+      "destinationIATAcode": "TIR",
+      "citiesCovered": ["Chennai", "Vellore"]
+    },
+	{
+      "origin": "Bangalore",
+      "originIATAcode": "BLR",
+      "destination": "Chennai",
+      "destinationIATAcode": "MAA",
+      "citiesCovered": ["Hyderabad", "Vijayawada"]
+    },
+	{
+      "origin": "Bangalore",
+      "originIATAcode": "BLR",
+      "destination": "Cuddapah",
+      "destinationIATAcode": "CDP",
+      "citiesCovered": ["Chennai", "Tirupati"]
+    },
+	 {
+      "origin": "Bangalore",
+      "originIATAcode": "BLR",
+      "destination": "Coimbatore",
+      "destinationIATAcode": "CJB",
+      "citiesCovered": [
+        "Salem",
+        "Erode"
+      ]
+    },
+	{
+      "origin": "Mangalore",
+      "originIATAcode": "IXE",
+      "destination": "Tirupathi",
+      "destinationIATAcode": "TIR",
+      "citiesCovered": ["Bangalore", "Chennai"]
+    },
+	{
+      "origin": "Mangalore",
+      "originIATAcode": "IXE",
+      "destination": "Chennai",
+      "destinationIATAcode": "MAA",
+      "citiesCovered": ["Bangalore", "Hyderabad"]
+    },
+	{
+      "origin": "Mangalore",
+      "originIATAcode": "IXE",
+      "destination": "Cuddapah",
+      "destinationIATAcode": "CDP",
+      "citiesCovered": ["Bengaluru", "Chennai"]
+    },
+	{
+      "origin": "Mangalore",
+      "originIATAcode": "IXE",
+      "destination": "Coimbatore",
+      "destinationIATAcode": "CJB",
+      "citiesCovered": ["Kochi", "Kozhikode", "Salem"]
+    },
+	{
+      "origin": "Bangalore",
+      "originIATAcode": "BLR",
+      "destination": "Mangalore",
+      "destinationIATAcode": "IXE",
+      "citiesCovered": ["Udupi", "Tumakuru"]
+    },
+	{
+      "origin": "Mangalore",
+      "originIATAcode": "IXE",
+      "destination": "Kozhikode",
+      "destinationIATAcode": "CCJ",
+      "citiesCovered": ["Kochi", "Calicut"]
+    },
+	{
+      "origin": "Mangalore",
+      "originIATAcode": "IXE",
+      "destination": "Hubli",
+      "destinationIATAcode": "HBX",
+      "citiesCovered": ["Karwar", "Belgaum"]
+    },
+	{
+      "origin": "Bangalore",
+      "originIATAcode": "BLR",
+      "destination": "Hubli",
+      "destinationIATAcode": "HBX",
+      "citiesCovered": ["Belgaum", "Dharwad"]
+    },
+	{
+      "origin": "Bangalore",
+      "originIATAcode": "BLR",
+      "destination": "Kozhikode",
+      "destinationIATAcode": "CCJ",
+      "citiesCovered": ["Kochi", "Calicut"]
+    },
+	{
+      "origin": "Chennai",
+      "originIATAcode": "MAA",
+      "destination": "Tirupathi",
+      "destinationIATAcode": "TIR",
+      "citiesCovered": ["Vellore", "Chittoor"]
+    },
+	{
+      "origin": "Chennai",
+      "originIATAcode": "MAA",
+      "destination": "Cuddapah",
+      "destinationIATAcode": "CDP",
+      "citiesCovered": ["Bengaluru", "Tirupati"]
+    },
+	{
+      "origin": "Mangalore",
+      "originIATAcode": "IXE",
+      "destination": "Goa",
+      "destinationIATAcode": "GOI",
+      "citiesCovered": ["Hubli", "Belgaum"]
+    },
+	{
+      "origin": "Mangalore",
+      "originIATAcode": "IXE",
+      "destination": "Belgaum",
+      "destinationIATAcode": "IXG",
+      "cities_covered": ["Hubli", "Goa"]
+    },
+	{
+      "origin": "Goa",
+      "originIATAcode": "GOI",
+      "destination": "Belgaum",
+      "destinationIATAcode": "IXG",
+      "citiesCovered": ["Hubli", "Dharwad"]
+    },
+	{
+      "origin": "Goa",
+      "originIATAcode": "GOI",
+      "destination": "Hubli",
+      "destinationIATAcode": "HBX",
+      "citiesCovered": ["Belgaum", "Dharwad"]
+    },
+	{
+      "origin": "Goa",
+      "originIATAcode": "GOI",
+      "destination": "Mangalore",
+      "destinationIATAcode": "IXE",
+      "citiesCovered": ["Hubli", "Belgaum"]
+    },
+	{
+      "origin": "Goa",
+      "originIATAcode": "GOI",
+      "destination": "Kozhikode",
+      "destinationIATAcode": "CCJ",
+      "citiesCovered": ["Mangalore", "Kochi"]
+    },
+	{
+      "origin": "Chennai",
+      "originIATAcode": "MAA",
+      "destination": "Bangalore",
+      "destinationIATAcode": "BLR",
+      "citiesCovered": ["Hyderabad", "Vijayawada"]
+    },
+	 {
+      "origin": "Chennai",
+      "originIATAcode": "MAA",
+      "destination": "Coimbatore",
+      "destinationIATAcode": "CJB",
+      "citiesCovered": ["Salem", "Erode"]
+    },
+    {
+        "origin": "Mangalore",
+        "originIATACode": "IXE",
+        "destination": "Chennai International",
+        "destinationIATACode": "MAA",
+        "citiesCovered": ["Chikkamagaluru", "Vellore"]
+      },
+      {
+        "origin": "Mangalore",
+        "originIATACode": "IXE",
+        "destination": "Coimbatore International",
+        "destinationIATACode": "CJB",
+        "citiesCovered": ["Chikkamagaluru", "Mysore"]
+      },
+      {
+        "origin": "Mangalore",
+        "originIATACode": "IXE",
+        "destination": "Tirupati",
+        "destinationIATACode": "TIR",
+        "citiesCovered": ["Chikkamagaluru", "Chittoor"]
+      },
+      {
+        "origin": "Mangalore",
+        "originIATACode": "IXE",
+        "destination": "Cuddapah",
+        "destinationIATACode": "CDP",
+        "citiesCovered": ["Chikkamagaluru", "Chittoor"]
+      },
+      {
+        "origin": "Chennai International",
+        "originIATACode": "MAA",
+        "destination": "Bangalore",
+        "destinationIATACode": "BLR",
+        "citiesCovered": ["Vellore"]
+      },
+      {
+        "origin": "Coimbatore International",
+        "originIATACode": "CJB",
+        "destination": "Bangalore",
+        "destinationIATACode": "BLR",
+        "citiesCovered": ["Mysore"]
+      },
+      {
+        "origin": "Tirupati",
+        "originIATACode": "TIR",
+        "destination": "Bangalore",
+        "destinationIATACode": "BLR",
+        "citiesCovered": ["Chittoor"]
+      },
+      {
+        "origin": "Cuddapah",
+        "originIATACode": "CDP",
+        "destination": "Bangalore",
+        "destinationIATACode": "BLR",
+        "citiesCovered": ["Chittoor"]
+      }
+]

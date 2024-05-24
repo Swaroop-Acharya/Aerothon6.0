@@ -90,7 +90,7 @@ export default function SearchAltRoute() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-4">Search Alternative Route</h1>
+      <h1 className="text-3xl text-white font-bold mb-4">Search Alternative Route</h1>
       <form
         onSubmit={handleSubmit}
         className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
