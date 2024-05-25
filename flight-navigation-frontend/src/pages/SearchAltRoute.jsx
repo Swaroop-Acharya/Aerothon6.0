@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import FlightMap from "./FlightMap"; // Ensure the correct path
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
+import { Icon } from "leaflet";
 
 export default function SearchAltRoute() {
   const [fromDestination, setFromDestination] = useState("");
@@ -18,13 +16,6 @@ export default function SearchAltRoute() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Validate input fields
-    if (!fromDestination || !toDestination || !icao24) {
-      toast.error("All fields are required");
-      return;
-    }
-
     setLoading(true);
 
     try {
@@ -72,6 +63,9 @@ export default function SearchAltRoute() {
       setAirportDetails(coordinatesArray);
 
       // Calculate fuel for the alternative path
+
+      console.log(icao24)
+      console.log(distance)
       const altFuelResponse = await axios.get(
         `http://localhost:5000/api/flight-fuel`,
         {
@@ -82,13 +76,14 @@ export default function SearchAltRoute() {
           }
         }
       );
-
+      console.log(altFuelResponse.data);
+     await axios.post('http://localhost:5000/api/insertFlightFuel', altFuelResponse.data[0]);
       const { fuel: altFuel, co2: altCo2 } = altFuelResponse.data[0];
-      await axios.post('http://localhost:5000/api/insertFlightFuel', altFuelResponse.data[0]);
+      
       setAltFuelInfo({ distance, altFuel, altCo2 });
-      toast.success("Alternate Route Successfully Found");
+
     } catch (error) {
-      toast.error(error.message);
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -114,7 +109,7 @@ export default function SearchAltRoute() {
             value={fromDestination}
             onChange={(e) => setFromDestination(e.target.value)}
             placeholder="Enter from destination"
-            className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           />
         </div>
         <div className="mb-4">
@@ -130,7 +125,7 @@ export default function SearchAltRoute() {
             value={toDestination}
             onChange={(e) => setToDestination(e.target.value)}
             placeholder="Enter to destination"
-            className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           />
         </div>
         <div className="mb-4">
@@ -146,7 +141,7 @@ export default function SearchAltRoute() {
             value={icao24}
             onChange={(e) => setIcao24(e.target.value)}
             placeholder="Enter Aircraft ICAO24 Code"
-            className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           />
         </div>
         <div>

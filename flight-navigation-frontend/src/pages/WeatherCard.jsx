@@ -18,7 +18,7 @@ function WeatherCard({ weatherData, setNearbyRoute }) {
   const checkWeatherConditions = (windSpeed, visibility) => {
     
     const minVisibility = 1.0; // Minimum visibility in km
-    const maxWindSpeed = 1.0; // Maximum wind speed in km/h
+    const maxWindSpeed = 20.0; // Maximum wind speed in km/h
 
     if (visibility < minVisibility) {
       toast.error(`Cannot Land because visibility is too low.`);
@@ -29,7 +29,7 @@ function WeatherCard({ weatherData, setNearbyRoute }) {
       toast.error(`Cannot Land because wind speed is too high.`);
       return false;
     }
-
+    toast(`Can land at the destination safetly`);
     return true;
   };
 

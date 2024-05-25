@@ -46,6 +46,7 @@ function NearbyAirportSearcher({ setNearbyRoute }) {
         })
       });
       const data = await response.json();
+      console.log(result)
       await axios.post('http://localhost:5000/api/near', data);
       console.log(data);
 
