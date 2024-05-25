@@ -1,6 +1,18 @@
-import React from "react";
-import { MapContainer, TileLayer, Marker, Polyline } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
+import React from 'react';
+import { MapContainer, TileLayer, Marker, Polyline } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+// Import your custom marker image
+import customMarkerIcon from '/maker.png';
+
+// Create a custom icon instance without the shadow
+const customIcon = L.icon({
+  iconUrl: customMarkerIcon,
+  iconSize: [25, 41], // size of the icon
+  iconAnchor: [12, 41], // point of the icon which will correspond to marker's location
+  popupAnchor: [1, -34], // point from which the popup should open relative to the iconAnchor
+});
 
 function FlightMap({ route }) {
   const indiaCenter = [20.5937, 78.9629]; // Coordinates for the center of India
@@ -15,7 +27,7 @@ function FlightMap({ route }) {
         {route && (
           <>
             {route.map((position, index) => (
-              <Marker key={index} position={position} />
+              <Marker key={index} position={position} icon={customIcon} />
             ))}
             <Polyline positions={route} color="blue" />
           </>

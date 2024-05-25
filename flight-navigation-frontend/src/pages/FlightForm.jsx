@@ -37,7 +37,7 @@ function FlightForm({
     <form
       onSubmit={onSubmit}
       className="bg-white gap-3 w-full flex flex-col items-center shadow-md rounded px-8 pt-6 pb-8 mb-4"
-    >
+    > 
       <div className="flex flex-wrap mb-4 w-full">
         <div className="w-full md:w-1/2 pr-2">
           <label className="block text-gray-700 text-sm font-bold mb-2">

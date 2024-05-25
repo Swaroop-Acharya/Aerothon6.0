@@ -12,7 +12,7 @@ export default function Navbar() {
             <ul className="flex space-x-4">
               <li>
                 <Link to="/" className=" font-semibold text-white">
-                  Incident
+                  Check Route Status
                 </Link>
               </li>
               <li>

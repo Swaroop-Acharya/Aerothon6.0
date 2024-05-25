@@ -261,6 +261,7 @@ export default function FlightSearchBar() {
     <div className="container mx-auto p-4">
       <div className="flex">
         <div className="w-full block ">
+        <h1 className="text-3xl text-white font-bold mb-4">Check status of current route</h1>
           <FlightForm
             fromAirport={fromAirport}
             setFromAirport={setFromAirport}
