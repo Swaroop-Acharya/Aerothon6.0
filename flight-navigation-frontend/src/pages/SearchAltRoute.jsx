@@ -109,7 +109,7 @@ export default function SearchAltRoute() {
             value={fromDestination}
             onChange={(e) => setFromDestination(e.target.value)}
             placeholder="Enter from destination"
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className=" appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           />
         </div>
         <div className="mb-4">
@@ -125,7 +125,7 @@ export default function SearchAltRoute() {
             value={toDestination}
             onChange={(e) => setToDestination(e.target.value)}
             placeholder="Enter to destination"
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className=" appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           />
         </div>
         <div className="mb-4">
@@ -141,7 +141,7 @@ export default function SearchAltRoute() {
             value={icao24}
             onChange={(e) => setIcao24(e.target.value)}
             placeholder="Enter Aircraft ICAO24 Code"
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className=" appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           />
         </div>
         <div>
