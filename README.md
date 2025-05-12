@@ -1,63 +1,149 @@
-## Introduction:
- Designed to optimize route planning and mitigate risks, our system leverages real-time data and
- advanced algorithms to ensure safe and efficient flight operations. This documentation provides
- comprehensive insights into the system's functionalities, API endpoints, deployment
- instructions, and more.
- Technical Documentation:
- System Overview:
- Our flight navigation enhancement system is built using a modern tech stack, comprising
- MySQL for data storage, Express.js for backend server development, React.js for frontend user
- interface, and Node.js for server-side JavaScript execution. The system is deployed using
- Vercel for frontend deployment and Render for backend deployment, ensuring reliability and
- scalability.
- Technologies Used:- MySQL: Relational database management system for data storage, offering robustness and
- data integrity.- Express.js: Web application framework for Node.js, facilitating backend server development
- with simplicity and flexibility.- React.js: JavaScript library for building user interfaces, providing a fast and interactive frontend
- experience.- Node.js: JavaScript runtime environment for executing server-side code, enabling efficient
- handling of concurrent requests.
- Dijkstra Algorithm:- Purpose: Utilized for finding the shortest path in route planning.- Implementation: Calculates optimal routes considering real-time weather and flight conditions.- Benefits: Ensures efficient and safe navigation by dynamically adjusting routes based on
- current data.
- Deployment:- Frontend Deployment: The frontend application is deployed on Vercel, offering seamless
- deployment and hosting with built-in CI/CD.- Backend Deployment: The backend server is deployed on Render, providing a scalable and
- reliable hosting platform with automatic scaling and monitoring capabilities.
- Data Flow:- Data flows from the frontend user interface to the backend server through RESTful API
- endpoints.- Backend server processes requests, retrieves data from the MySQL database, and sends
- responses back to the frontend.- Real-time data updates and notifications are facilitated through WebSocket connections
- between the frontend and backend.
-Database Schema:- The MySQL database comprises multiple tables for storing various data entities, including
- intermediate cities, flight information, weather data etc.- Tables are normalized to 3nf to minimize redundancy and ensure data consistency, with
- appropriate indexes and constraints applied for optimized performance.
- Monitoring and Logging:- System performance and error logs are monitored and logged using built-in logging
- frameworks provided by Express.js and Node.js.
- Scalability and Performance:- The system architecture is designed for horizontal scalability, allowing for seamless handling of
- increasing user loads and data volumes.- Performance optimizations, such as caching and query optimization, are implemented to
- ensure rapid response times and efficient resource utilization.
- API Links:
- Our flight navigation enhancement system provides a set of RESTful APIs for interacting with
- various components of the system. This documentation covers the available endpoints, request
- and response formats, authentication methods, and error handling.
- Base URL:
- `https://flight-navigation-backend.onrender.com`
- Endpoints:
- 1. Airport Distance API- GET https://airportgap.com/api/airports/distance- Description: Retrieves the distance between two airports.- Request Parameters:- `from` (string): The IATA code of the departure airport.- `to` (string): The IATA code of the destination airport.
- 2. Route Planning API- GET /api/getRoute- Description: Retrieves the optimal route for a flight.- Request Parameters:- `from` (string): The IATA code of the departure airport.- `to` (string): The IATA code of the destination airport.
- 3. Location API- GET /api/getlocation- Description: Retrieves the current location of the flight.- Request Parameters:
-- `flight_id` (string): The unique identifier of the flight.
- 4. Insert Airport API- POST /api/insertAirport- Description: Inserts a new airport into the database.- Request Body Parameters:- `iata` (string): The IATA code of the airport.- `name` (string): The name of the airport.- `city` (string): The city where the airport is located.- `country` (string): The country where the airport is located.
- 5. Insert Destination Airport API- POST /api/insertDestinationAirport- Description: Inserts a new destination airport into the database.- Request Body Parameters:- `iata` (string): The IATA code of the airport.- `name` (string): The name of the airport.- `city` (string): The city where the airport is located.- `country` (string): The country where the airport is located.
- 6. Flight Status API- GET /api/getFlyStatus- Description: Retrieves the flight status.- Request Parameters:- `flight_id` (string): The unique identifier of the flight.
- 7. Nearest Airport API- GET /api/get-nearest-airport- Description: Finds the nearest airport based on current location.- Request Parameters:- `latitude` (float): Current latitude.- `longitude` (float): Current longitude.
- 8. Nearby Airports API- GET /api/near- Description: Retrieves nearby airports within a specified radius.- Request Parameters:- `latitude` (float): Latitude.- `longitude` (float): Longitude.- `radius` (int): Radius in kilometers.
- 9. Airport Graphs API- GET /api/airport-graphs- Description: Retrieves graph data for airport connections.
-10. External Airport Info API- GET https://airport-info.p.rapidapi.com/airport- Description: Retrieves detailed airport information from an external API.- Request Parameters:- `iata` (string): The IATA code of the airport.
- 11. Flight Fuel API- GET /api/flight-fuel- Description: Retrieves fuel consumption details for a flight.- Request Parameters:- `flight_id` (string): The unique identifier of the flight.- POST /api/insertFlightFuel- Description: Inserts fuel data for a flight into the database.- Request Body Parameters:- `flight_id` (string): The unique identifier of the flight.- `fuel_used` (int): The amount of fuel used.- `fuel_remaining` (int): The amount of fuel remaining.
- 12. External Location Data API- GET https://test.api.amadeus.com/v1/reference-data/locations- Description: Retrieves location data from an external API.- Request Parameters:- `keyword` (string): Search keyword.
- 13. Aircraft API- GET /api/aircraft- Description: Retrieves details of aircrafts in the system.
- 14. Routes API- GET /api/routes- Description: Retrieves available flight routes.
- Authentication:- API Key: Each request must include an API key in the headers for authentication.- Header: `Authorization: Bearer YOUR_API_KEY`
- Rate Limiting and Usage Policies:- Each API key is subject to rate limiting to prevent abuse.- The default rate limit is 1000 requests per hour.
- Error Handling:- 400 Bad Request: The request is invalid or malformed.
-- 401 Unauthorized: The API key is missing or invalid.- 404 Not Found: The requested resource does not exist.- 500 Internal Server Error: An unexpected error occurred on the server
+# ✈️ Flight Navigation Enhancement System
 
-## Live link :- https://flight-navigation-frontend.vercel.app/
+A full-stack web application designed to optimize flight route planning and mitigate risks by leveraging real-time data and advanced algorithms for efficient and safe flight operations.
 
+🔗 **Live Site**: [https://flight-navigation-frontend.vercel.app](https://flight-navigation-frontend.vercel.app)  
+🔗 **Backend API Base URL**: `https://flight-navigation-backend.onrender.com`
+
+---
+
+## 📘 Introduction
+
+This system ensures enhanced flight navigation by dynamically computing optimal routes based on weather and airspace conditions. It integrates a scalable backend, responsive frontend, and real-time data handling to support efficient aviation operations.
+
+---
+
+## ⚙️ Tech Stack
+
+- **Frontend**: React.js (deployed on [Vercel](https://vercel.com/))
+- **Backend**: Node.js, Express.js (deployed on [Render](https://render.com/))
+- **Database**: MySQL
+- **Algorithm**: Dijkstra's algorithm for shortest path calculation
+- **Real-time Updates**: WebSockets
+
+---
+
+## 🧠 Key Features
+
+- Real-time shortest path route planning using Dijkstra's algorithm
+- Live flight location tracking
+- Distance and nearest airport calculations
+- Fuel consumption tracking
+- RESTful API access with authentication and rate limiting
+- Integration with third-party APIs for airport and location data
+
+---
+
+## 🔁 Data Flow
+
+1. Frontend sends requests to backend via RESTful API.
+2. Backend processes data and communicates with MySQL.
+3. Real-time updates and notifications via WebSockets.
+
+---
+
+## 🧩 Database
+
+- Normalized to **3NF** for minimal redundancy and maximum data consistency
+- Indexed for performance
+- Tables include:
+  - Airports
+  - Flights
+  - Intermediate Cities
+  - Weather
+  - Fuel Data
+
+---
+
+## 📈 Monitoring & Performance
+
+- Logging via Node.js and Express middleware
+- Query optimization and caching mechanisms
+- Horizontal scalability built-in via stateless architecture
+
+---
+
+## 🚀 Deployment
+
+- **Frontend**: Hosted on Vercel (CI/CD enabled)
+- **Backend**: Hosted on Render (autoscaling and monitoring)
+
+---
+
+## 🔌 API Documentation
+
+**Authentication**:  
+Every API request must include an API key:
+```
+Authorization: Bearer YOUR_API_KEY
+```
+
+**Rate Limiting**:  
+1000 requests/hour per API key
+
+### ✈️ Available Endpoints
+
+#### 1. Airport Distance API  
+**GET** `https://airportgap.com/api/airports/distance`  
+- **Params**: `from`, `to` (IATA codes)
+
+#### 2. Route Planning API  
+**GET** `/api/getRoute`  
+- **Params**: `from`, `to` (IATA codes)
+
+#### 3. Location API  
+**GET** `/api/getlocation`  
+- **Params**: `flight_id`
+
+#### 4. Insert Airport API  
+**POST** `/api/insertAirport`  
+- **Body**: `iata`, `name`, `city`, `country`
+
+#### 5. Insert Destination Airport API  
+**POST** `/api/insertDestinationAirport`  
+- **Body**: `iata`, `name`, `city`, `country`
+
+#### 6. Flight Status API  
+**GET** `/api/getFlyStatus`  
+- **Params**: `flight_id`
+
+#### 7. Nearest Airport API  
+**GET** `/api/get-nearest-airport`  
+- **Params**: `latitude`, `longitude`
+
+#### 8. Nearby Airports API  
+**GET** `/api/near`  
+- **Params**: `latitude`, `longitude`, `radius`
+
+#### 9. Airport Graphs API  
+**GET** `/api/airport-graphs`  
+- Retrieves graph data for airport connections
+
+#### 10. External Airport Info API  
+**GET** `https://airport-info.p.rapidapi.com/airport`  
+- **Params**: `iata`
+
+#### 11. Flight Fuel API  
+- **GET** `/api/flight-fuel`  
+  - **Params**: `flight_id`  
+- **POST** `/api/insertFlightFuel`  
+  - **Body**: `flight_id`, `fuel_used`, `fuel_remaining`
+
+#### 12. External Location Data API  
+**GET** `https://test.api.amadeus.com/v1/reference-data/locations`  
+- **Params**: `keyword`
+
+#### 13. Aircraft API  
+**GET** `/api/aircraft`
+
+#### 14. Routes API  
+**GET** `/api/routes`
+
+---
+
+## ⚠️ Error Handling
+
+- **400 Bad Request**: Invalid or malformed request
+- **401 Unauthorized**: Missing or invalid API key
+- **404 Not Found**: Resource not found
+- **500 Internal Server Error**: Unexpected server issue
