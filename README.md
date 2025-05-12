@@ -59,5 +59,5 @@ Database Schema:- The MySQL database comprises multiple tables for storing vario
  Error Handling:- 400 Bad Request: The request is invalid or malformed.
 - 401 Unauthorized: The API key is missing or invalid.- 404 Not Found: The requested resource does not exist.- 500 Internal Server Error: An unexpected error occurred on the server
 
-## Hosted Full Stack Site :- https://flight-navigation-frontend.vercel.app/
+## Live link :- https://flight-navigation-frontend.vercel.app/
 
