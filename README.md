@@ -6,6 +6,7 @@ A full-stack web application designed to optimize flight route planning and miti
 🔗 **Backend API Base URL**: `https://flight-navigation-backend.onrender.com`
 
 ---
+[![Watch the video](https://img.youtube.com/vi/DJQCf-_CgE8/0.jpg)](https://www.youtube.com/watch?v=DJQCf-_CgE8)
 
 ## 📘 Introduction
 
